@@ -226,7 +226,7 @@ export default function Home() {
   return (
     <main className="site-shell">
       <header className="topbar">
-        <a className="brand" href="#top" aria-label="MUSE 首页">
+        <a className="brand" href="#parameters" aria-label="MUSE 创作台">
           <span className="brand-mark">M</span>
           <span>
             <strong>MUSE</strong>
@@ -251,36 +251,6 @@ export default function Home() {
           </a>
         </div>
       </header>
-
-      <section className="hero" id="top">
-        <div className="hero-copy">
-          <p className="eyebrow">HYBRID GENERATION CONSOLE / 01</p>
-          <h1>
-            把灵感，
-            <br />
-            <em>调成画面。</em>
-          </h1>
-          <p className="hero-description">
-            同一套前端可以启动本机模型，也可以通过 SSH 隧道调用云端 GPU。
-            每位同事按自己的算力环境切换，参数与出图流程保持一致。
-          </p>
-          <div className="hero-meta">
-            <span>08 参数域</span>
-            <span>本地 / 云端 GPU</span>
-            <span>SSH 内网隧道</span>
-          </div>
-        </div>
-
-        <div className="hero-visual" aria-hidden="true">
-          <span className="visual-label">PROMPT / HYBRID INFERENCE</span>
-          <div className="orb orb-one" />
-          <div className="orb orb-two" />
-          <div className="orb orb-three" />
-          <div className="grid-lines" />
-          <span className="visual-coordinates">LOCAL MODEL / CLOUD GPU</span>
-          <span className="visual-index">01</span>
-        </div>
-      </section>
 
       <section className="workspace" id="parameters">
         <div className="section-heading">

@@ -29,7 +29,8 @@ test("server-renders the anime prompt studio", async () => {
 
   const html = await response.text();
   assert.match(html, /<title>MUSE — 二次元文生图创作台<\/title>/i);
-  assert.match(html, /把灵感/);
+  assert.doesNotMatch(html, /把灵感|调成画面/);
+  assert.match(html, /定义你的画面/);
   assert.match(html, /风格定位类/);
   assert.match(html, /核心形象类/);
   assert.match(html, /模型提示词/);
