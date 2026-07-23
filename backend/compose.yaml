@@ -1,0 +1,22 @@
+services:
+  diffusion-api:
+    build:
+      context: .
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "${API_BIND_ADDRESS:-127.0.0.1}:8000:8000"
+    volumes:
+      - model-cache:/models/huggingface
+      - ./outputs:/app/outputs
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+volumes:
+  model-cache:

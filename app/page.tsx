@@ -1,6 +1,15 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import {
+  DEFAULT_NEGATIVE_PROMPT,
+  QUALITY_PREFIX,
+  toModelPrompt,
+} from "./prompt-tags";
+import {
+  ConnectionStatus,
+  RuntimePanel,
+} from "./runtime-panel";
 import { DEFAULT_SELECTIONS, PARAMETER_GROUPS } from "./studio-config";
 
 const FIELD_LABELS = Object.fromEntries(
@@ -9,16 +18,74 @@ const FIELD_LABELS = Object.fromEntries(
   ),
 );
 
-type GenerationStatus = "idle" | "generating" | "ready";
+const SIZE_PRESETS = [
+  { label: "头像 1:1", width: 1024, height: 1024 },
+  { label: "竖版 3:4", width: 896, height: 1152 },
+  { label: "横版 4:3", width: 1152, height: 896 },
+  { label: "海报 2:3", width: 832, height: 1216 },
+];
+
+const SAMPLERS = [
+  { value: "dpmpp_2m_karras", label: "DPM++ 2M Karras" },
+  { value: "dpmpp_sde_karras", label: "DPM++ SDE Karras" },
+  { value: "euler_a", label: "Euler Ancestral" },
+  { value: "euler", label: "Euler" },
+];
+
+type GenerationStatus = "idle" | "generating" | "ready" | "error";
+
+type GenerationResult = {
+  request_id: string;
+  image_base64: string;
+  mime_type: string;
+  seed: number;
+  model: string;
+  width: number;
+  height: number;
+  steps: number;
+  guidance_scale: number;
+  sampler: string;
+  duration_ms: number;
+};
+
+function normalizeApiUrl(value: string) {
+  return value.trim().replace(/\/+$/, "");
+}
+
+function connectionLabel(status: ConnectionStatus) {
+  if (status === "checking") return "正在检查";
+  if (status === "starting") return "模型加载中";
+  if (status === "connected") return "GPU 已连接";
+  if (status === "error") return "连接失败";
+  return "未连接服务";
+}
 
 export default function Home() {
   const [selections, setSelections] =
     useState<Record<string, string>>(DEFAULT_SELECTIONS);
   const [description, setDescription] = useState(
-    "一个在樱花树下回头微笑的动漫少女，柔和逆光，画面干净通透",
+    "1girl, solo, looking back at viewer, gentle smile, soft backlight, clean composition",
   );
+  const [negativePrompt, setNegativePrompt] = useState(DEFAULT_NEGATIVE_PROMPT);
   const [status, setStatus] = useState<GenerationStatus>("idle");
   const [copied, setCopied] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [result, setResult] = useState<GenerationResult | null>(null);
+
+  const [gatewayUrl, setGatewayUrl] = useState("http://127.0.0.1:8000");
+  const [connection, setConnection] =
+    useState<ConnectionStatus>("unchecked");
+  const [connectionMessage, setConnectionMessage] = useState(
+    "选择本地模型，或通过 SSH 连接云端 GPU",
+  );
+
+  const [width, setWidth] = useState(1024);
+  const [height, setHeight] = useState(1024);
+  const [steps, setSteps] = useState(28);
+  const [guidanceScale, setGuidanceScale] = useState(5);
+  const [seed, setSeed] = useState(-1);
+  const [sampler, setSampler] = useState("dpmpp_2m_karras");
+  const [clipSkip, setClipSkip] = useState(2);
 
   const selectedEntries = useMemo(
     () => Object.entries(selections).filter(([, value]) => Boolean(value)),
@@ -26,17 +93,38 @@ export default function Home() {
   );
 
   const combinedPrompt = useMemo(() => {
-    const parameterText = selectedEntries.map(([, value]) => value).join("，");
-    return [description.trim(), parameterText].filter(Boolean).join("，");
+    const parameterText = selectedEntries
+      .map(([, value]) => toModelPrompt(value))
+      .filter(Boolean)
+      .join(", ");
+    return [QUALITY_PREFIX, description.trim(), parameterText]
+      .filter(Boolean)
+      .join(", ");
   }, [description, selectedEntries]);
 
   const payload = useMemo(
     () => ({
-      prompt: description.trim(),
-      parameters: selections,
-      compiledPrompt: combinedPrompt,
+      prompt: combinedPrompt,
+      negative_prompt: negativePrompt,
+      width,
+      height,
+      steps,
+      guidance_scale: guidanceScale,
+      seed,
+      sampler,
+      clip_skip: clipSkip,
     }),
-    [combinedPrompt, description, selections],
+    [
+      clipSkip,
+      combinedPrompt,
+      guidanceScale,
+      height,
+      negativePrompt,
+      sampler,
+      seed,
+      steps,
+      width,
+    ],
   );
 
   function updateSelection(fieldId: string, value: string) {
@@ -44,6 +132,10 @@ export default function Home() {
       ...current,
       [fieldId]: value,
     }));
+    if (fieldId === "sampling" && value === "20 步采样") setSteps(20);
+    if (fieldId === "sampling" && value === "CFG = 5（黄金组合）") {
+      setGuidanceScale(5);
+    }
     setStatus("idle");
   }
 
@@ -59,7 +151,10 @@ export default function Home() {
   function resetForm() {
     setSelections(DEFAULT_SELECTIONS);
     setDescription("");
+    setNegativePrompt(DEFAULT_NEGATIVE_PROMPT);
     setStatus("idle");
+    setResult(null);
+    setErrorMessage("");
   }
 
   async function copyPrompt() {
@@ -69,16 +164,69 @@ export default function Home() {
     window.setTimeout(() => setCopied(false), 1600);
   }
 
-  function handleGenerate() {
+  async function handleGenerate() {
+    const baseUrl = normalizeApiUrl(gatewayUrl);
     if (!combinedPrompt || status === "generating") return;
+    if (!baseUrl) {
+      setStatus("error");
+      setErrorMessage("请先启动本机 Runtime Gateway");
+      return;
+    }
+
     setStatus("generating");
-    window.setTimeout(() => setStatus("ready"), 1100);
+    setErrorMessage("");
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 10 * 60 * 1000);
+
+    try {
+      const response = await fetch(`${baseUrl}/v1/generate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+        signal: controller.signal,
+      });
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(body.detail || `生成失败（${response.status}）`);
+      }
+      setResult(body as GenerationResult);
+      setSeed(body.seed);
+      setStatus("ready");
+      setConnection("connected");
+    } catch (error) {
+      setStatus("error");
+      setErrorMessage(
+        error instanceof Error
+          ? error.name === "AbortError"
+            ? "生成超时，请检查服务器负载"
+            : error.message
+          : "生成请求失败",
+      );
+    } finally {
+      window.clearTimeout(timeout);
+    }
+  }
+
+  function downloadResult() {
+    if (!result) return;
+    const link = document.createElement("a");
+    link.href = `data:${result.mime_type};base64,${result.image_base64}`;
+    link.download = `muse-${result.seed}.png`;
+    link.click();
+  }
+
+  function applySizePreset(preset: (typeof SIZE_PRESETS)[number]) {
+    setWidth(preset.width);
+    setHeight(preset.height);
+    setStatus("idle");
   }
 
   return (
     <main className="site-shell">
       <header className="topbar">
-        <a className="brand" href="#top" aria-label="MUSE 首页">
+        <a className="brand" href="#parameters" aria-label="MUSE 创作台">
           <span className="brand-mark">M</span>
           <span>
             <strong>MUSE</strong>
@@ -87,10 +235,14 @@ export default function Home() {
         </a>
 
         <div className="topbar-actions">
-          <span className="api-status">
+          <a
+            className={`api-status api-${connection}`}
+            href="#server"
+            title={connectionMessage}
+          >
             <i aria-hidden="true" />
-            API 待接入
-          </span>
+            {connectionLabel(connection)}
+          </a>
           <a className="ghost-link" href="#parameters">
             参数配置
           </a>
@@ -100,36 +252,6 @@ export default function Home() {
         </div>
       </header>
 
-      <section className="hero" id="top">
-        <div className="hero-copy">
-          <p className="eyebrow">GENERATION CONSOLE / 01</p>
-          <h1>
-            把灵感，
-            <br />
-            <em>调成画面。</em>
-          </h1>
-          <p className="hero-description">
-            面向二次元创作的文生图参数工作台。组合角色、场景与情绪，
-            一键整理成可供 Diffusion 模型使用的结构化提示词。
-          </p>
-          <div className="hero-meta">
-            <span>08 参数域</span>
-            <span>22 控制项</span>
-            <span>结构化载荷</span>
-          </div>
-        </div>
-
-        <div className="hero-visual" aria-hidden="true">
-          <span className="visual-label">PROMPT / VISUAL LANGUAGE</span>
-          <div className="orb orb-one" />
-          <div className="orb orb-two" />
-          <div className="orb orb-three" />
-          <div className="grid-lines" />
-          <span className="visual-coordinates">31°14&apos;N / 121°29&apos;E</span>
-          <span className="visual-index">01</span>
-        </div>
-      </section>
-
       <section className="workspace" id="parameters">
         <div className="section-heading">
           <div>
@@ -137,9 +259,9 @@ export default function Home() {
             <h2>定义你的画面</h2>
           </div>
           <p>
-            大类负责方向，小类负责精度。
+            中文选项会映射为动漫模型标签。
             <br />
-            每个字段都已预留后端映射键。
+            自定义描述推荐使用英文或 Danbooru 标签。
           </p>
         </div>
 
@@ -192,37 +314,96 @@ export default function Home() {
 
           <aside className="creation-console" id="prompt">
             <div className="console-topline">
-              <span>TEXT TO IMAGE</span>
-              <span>V0.1 / FRAMEWORK</span>
+              <span>MODEL RUNTIME</span>
+              <span>LOCAL / CLOUD · V2</span>
             </div>
 
+            <details
+              className="server-panel"
+              id="server"
+              open={connection !== "connected"}
+            >
+              <summary>
+                <span>
+                  <i className={`connection-dot dot-${connection}`} />
+                  模型运行环境
+                </span>
+                <small>{connectionLabel(connection)}</small>
+              </summary>
+              <RuntimePanel
+                gatewayUrl={gatewayUrl}
+                connection={connection}
+                connectionMessage={connectionMessage}
+                onGatewayUrlChange={setGatewayUrl}
+                onConnectionChange={(nextStatus, message) => {
+                  setConnection(nextStatus);
+                  setConnectionMessage(message);
+                }}
+              />
+            </details>
+
             <div className={`preview-stage preview-${status}`}>
-              <div className="preview-noise" />
-              <div className="preview-shape shape-a" />
-              <div className="preview-shape shape-b" />
-              <div className="preview-shape shape-c" />
+              {!result && (
+                <>
+                  <div className="preview-noise" />
+                  <div className="preview-shape shape-a" />
+                  <div className="preview-shape shape-b" />
+                  <div className="preview-shape shape-c" />
+                </>
+              )}
+
+              {result && (
+                // The image is returned by the user's own generation server.
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  className="generated-image"
+                  src={`data:${result.mime_type};base64,${result.image_base64}`}
+                  alt={`生成结果，种子 ${result.seed}`}
+                />
+              )}
 
               {status === "generating" && (
                 <div className="preview-message" role="status">
                   <span className="loader" />
-                  正在整理生成请求
+                  <strong>GPU 正在绘制</strong>
+                  <span>首次生成可能需要等待模型加载</span>
                 </div>
               )}
 
-              {status === "ready" && (
-                <div className="preview-message" role="status">
-                  <strong>接口位置已预留</strong>
-                  <span>下一步将此请求载荷发送给后端模型服务</span>
+              {status === "error" && (
+                <div className="preview-message preview-error" role="alert">
+                  <strong>生成没有完成</strong>
+                  <span>{errorMessage}</span>
                 </div>
               )}
 
-              {status === "idle" && (
+              {status === "idle" && !result && (
                 <div className="preview-caption">
                   <span>CANVAS PREVIEW</span>
-                  <small>1:1 / 1024 × 1024</small>
+                  <small>
+                    {width} × {height}
+                  </small>
+                </div>
+              )}
+
+              {result && status === "ready" && (
+                <div className="result-meta">
+                  <span>SEED {result.seed}</span>
+                  <span>{(result.duration_ms / 1000).toFixed(1)}S</span>
                 </div>
               )}
             </div>
+
+            {result && status === "ready" && (
+              <button
+                className="download-button"
+                type="button"
+                onClick={downloadResult}
+              >
+                下载原始 PNG
+                <span aria-hidden="true">↓</span>
+              </button>
+            )}
 
             <div className="selection-summary">
               <div className="summary-heading">
@@ -252,22 +433,138 @@ export default function Home() {
 
             <div className="prompt-box">
               <div className="prompt-heading">
-                <label htmlFor="prompt-input">描述你想生成的画面</label>
-                <span>{description.length} / 500</span>
+                <label htmlFor="prompt-input">模型提示词</label>
+                <span>{description.length} / 1000</span>
               </div>
               <textarea
                 id="prompt-input"
-                maxLength={500}
+                maxLength={1000}
                 value={description}
                 onChange={(event) => {
                   setDescription(event.target.value);
                   setStatus("idle");
                 }}
-                placeholder="例如：雨夜公交站里，一个戴着耳机的银发少年望向窗外……"
+                placeholder="1girl, silver hair, looking at viewer, rainy night…"
               />
+
+              <details className="advanced-settings" open>
+                <summary>高级生成参数</summary>
+                <div className="size-presets">
+                  {SIZE_PRESETS.map((preset) => (
+                    <button
+                      type="button"
+                      key={preset.label}
+                      className={
+                        width === preset.width && height === preset.height
+                          ? "active"
+                          : ""
+                      }
+                      onClick={() => applySizePreset(preset)}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+                <div className="advanced-grid">
+                  <label>
+                    <span>宽度</span>
+                    <input
+                      type="number"
+                      min={512}
+                      max={1536}
+                      step={64}
+                      value={width}
+                      onChange={(event) => setWidth(Number(event.target.value))}
+                    />
+                  </label>
+                  <label>
+                    <span>高度</span>
+                    <input
+                      type="number"
+                      min={512}
+                      max={1536}
+                      step={64}
+                      value={height}
+                      onChange={(event) => setHeight(Number(event.target.value))}
+                    />
+                  </label>
+                  <label>
+                    <span>采样步数</span>
+                    <input
+                      type="number"
+                      min={10}
+                      max={60}
+                      value={steps}
+                      onChange={(event) => setSteps(Number(event.target.value))}
+                    />
+                  </label>
+                  <label>
+                    <span>CFG</span>
+                    <input
+                      type="number"
+                      min={1}
+                      max={15}
+                      step={0.5}
+                      value={guidanceScale}
+                      onChange={(event) =>
+                        setGuidanceScale(Number(event.target.value))
+                      }
+                    />
+                  </label>
+                  <label>
+                    <span>随机种子（-1 随机）</span>
+                    <input
+                      type="number"
+                      min={-1}
+                      max={4294967295}
+                      value={seed}
+                      onChange={(event) => setSeed(Number(event.target.value))}
+                    />
+                  </label>
+                  <label>
+                    <span>Clip Skip</span>
+                    <select
+                      value={clipSkip}
+                      onChange={(event) =>
+                        setClipSkip(Number(event.target.value))
+                      }
+                    >
+                      <option value={1}>1</option>
+                      <option value={2}>2（推荐）</option>
+                      <option value={3}>3</option>
+                      <option value={4}>4</option>
+                    </select>
+                  </label>
+                  <label className="wide-control">
+                    <span>采样器</span>
+                    <select
+                      value={sampler}
+                      onChange={(event) => setSampler(event.target.value)}
+                    >
+                      {SAMPLERS.map((item) => (
+                        <option key={item.value} value={item.value}>
+                          {item.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+              </details>
+
+              <details className="negative-settings">
+                <summary>负面提示词</summary>
+                <textarea
+                  value={negativePrompt}
+                  onChange={(event) => setNegativePrompt(event.target.value)}
+                  aria-label="负面提示词"
+                />
+              </details>
+
               <div className="compiled-prompt">
-                <span>COMPILED PROMPT</span>
-                <p>{combinedPrompt || "选择参数或输入描述后，将在这里组合提示词。"}</p>
+                <span>COMPILED MODEL PROMPT</span>
+                <p>
+                  {combinedPrompt || "选择参数或输入描述后，将在这里组合提示词。"}
+                </p>
               </div>
               <div className="prompt-actions">
                 <button
@@ -284,23 +581,29 @@ export default function Home() {
                   disabled={!combinedPrompt || status === "generating"}
                   onClick={handleGenerate}
                 >
-                  <span>{status === "generating" ? "整理中" : "生成画面"}</span>
+                  <span>{status === "generating" ? "生成中" : "调用 GPU 生成"}</span>
                   <i aria-hidden="true">↗</i>
                 </button>
               </div>
             </div>
 
             <details className="payload-preview">
-              <summary>查看后端请求载荷</summary>
+              <summary>查看服务器请求载荷</summary>
               <pre>{JSON.stringify(payload, null, 2)}</pre>
             </details>
+
+            <p className="license-note">
+              运行方式：本地模型进程或 SSH 云端工作节点
+              <br />
+              每个模型的许可证不同，商用前仍需单独核对模型与素材权利。
+            </p>
           </aside>
         </div>
       </section>
 
       <footer>
         <span>MUSE / ANIME PROMPT STUDIO</span>
-        <span>FRONTEND FRAMEWORK · 2026</span>
+        <span>LOCAL GATEWAY · HYBRID GPU · 2026</span>
       </footer>
     </main>
   );

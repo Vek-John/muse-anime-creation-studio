@@ -380,7 +380,5 @@ export const DEFAULT_SELECTIONS: Record<string, string> = {
   campusScene: "樱花树下",
   emotion: "温柔治愈",
   format: "小红书头像",
-  sampling: "20 步采样",
   negativeConstraint: "五官正常",
 };
-
