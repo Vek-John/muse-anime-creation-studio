@@ -9,7 +9,7 @@
 - 文生图描述输入框与自动组合提示词
 - 已选参数标签、移除、重置和复制提示词
 - 本地 Diffusers 模型目录与 `.safetensors/.ckpt` 单文件选择
-- 云端 SSH 隧道、密码/私钥认证和远端 API 密钥连接
+- AutoDL SSH 隧道与自动远端 API 密钥读取
 - 本机 Runtime Gateway 与统一生成接口
 - 尺寸、采样步数、CFG、种子、采样器、Clip Skip、负面词控制
 - 真实成图预览和 PNG 下载
@@ -56,9 +56,10 @@ cp gateway/.env.example gateway/.env
 ```
 
 前端默认连接 `http://127.0.0.1:8000`。选择“本地 GPU”时，Gateway 会从所选
-模型路径启动本地推理进程；选择“云端 GPU”时，Gateway 会通过 SSH 隧道连接
-远端工作节点。SSH 密码、私钥口令和远端 API 密钥只保存在 Gateway 内存中，
-不会写入浏览器存储或 Git。
+模型路径启动本地推理进程；选择“云端 GPU”时，只需填写 AutoDL SSH 登录
+指令和密码。Gateway 会通过 SSH 登录，自动读取远端 `.env` 的 API 密钥并
+建立隧道。SSH 密码和远端 API 密钥只保存在 Gateway 内存中，不会写入
+浏览器存储或 Git。
 
 详细说明见 `backend/gateway/README.md`。
 

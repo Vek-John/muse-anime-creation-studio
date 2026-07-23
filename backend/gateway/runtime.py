@@ -210,41 +210,39 @@ class RuntimeManager:
         await self._wait_for_worker_health()
 
     async def _configure_cloud(self, config: CloudRuntimeConfig) -> None:
-        host, port, username, command_identity = parse_ssh_command(
+        host, port, username, _ = parse_ssh_command(
             config.ssh_command
         )
-        connect_args: dict[str, Any] = {
-            "host": host,
-            "port": port,
-            "username": username,
-        }
-        if config.auth_method == "password":
-            connect_args["password"] = config.ssh_password
-            connect_args["client_keys"] = []
-            connect_args["preferred_auth"] = [
-                "password",
-                "keyboard-interactive",
-            ]
-        else:
-            key_path = (
-                config.ssh_private_key_path or command_identity or ""
-            ).strip()
-            connect_args["client_keys"] = [str(Path(key_path).expanduser())]
-            if config.ssh_private_key_passphrase:
-                connect_args["passphrase"] = config.ssh_private_key_passphrase
+        self._ssh_connection = await asyncssh.connect(
+            host=host,
+            port=port,
+            username=username,
+            password=config.ssh_password,
+            client_keys=[],
+            preferred_auth=["password", "keyboard-interactive"],
+        )
+        api_key_result = await self._ssh_connection.run(
+            "sed -n 's/^API_KEY=//p' "
+            f"{shlex.quote(self.settings.remote_env_file)} | head -n 1",
+            check=True,
+        )
+        remote_api_key = api_key_result.stdout.strip().strip("\"'")
+        if not remote_api_key:
+            raise RuntimeError(
+                f"未能从远端 {self.settings.remote_env_file} 读取 API_KEY。"
+            )
 
-        self._ssh_connection = await asyncssh.connect(**connect_args)
         self._ssh_listener = await self._ssh_connection.forward_local_port(
             "127.0.0.1",
             0,
             "127.0.0.1",
-            config.remote_port,
+            self.settings.remote_port,
         )
         local_port = self._ssh_listener.get_port()
         self._mode = "cloud"
         self._label = f"{username}@{host}"
         self._base_url = f"http://127.0.0.1:{local_port}"
-        self._worker_api_key = config.remote_api_key
+        self._worker_api_key = remote_api_key
 
         response = await self._request("GET", "/v1/status", timeout=30)
         if response.status_code >= 400:

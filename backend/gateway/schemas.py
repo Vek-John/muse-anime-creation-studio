@@ -15,19 +15,12 @@ class LocalRuntimeConfig(BaseModel):
 class CloudRuntimeConfig(BaseModel):
     mode: Literal["cloud"]
     ssh_command: str = Field(min_length=1, max_length=1024)
-    auth_method: Literal["password", "private_key"] = "password"
-    ssh_password: str = Field(default="", max_length=4096)
-    ssh_private_key_path: str = Field(default="", max_length=2048)
-    ssh_private_key_passphrase: str = Field(default="", max_length=4096)
-    remote_api_key: str = Field(min_length=1, max_length=4096)
-    remote_port: int = Field(default=6006, ge=1, le=65535)
+    ssh_password: str = Field(min_length=1, max_length=4096)
 
     @model_validator(mode="after")
     def validate_credentials(self) -> "CloudRuntimeConfig":
-        if self.auth_method == "password" and not self.ssh_password:
+        if not self.ssh_password:
             raise ValueError("SSH password is required.")
-        if self.auth_method == "private_key" and not self.ssh_private_key_path:
-            raise ValueError("SSH private key path is required.")
         return self
 
 

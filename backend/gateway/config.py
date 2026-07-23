@@ -18,6 +18,8 @@ class GatewaySettings:
     worker_python: str
     worker_log: Path
     worker_start_timeout_seconds: float
+    remote_env_file: str
+    remote_port: int
 
     @classmethod
     def from_env(cls) -> "GatewaySettings":
@@ -36,4 +38,9 @@ class GatewaySettings:
             worker_start_timeout_seconds=float(
                 os.getenv("GATEWAY_WORKER_START_TIMEOUT", "30")
             ),
+            remote_env_file=os.getenv(
+                "GATEWAY_REMOTE_ENV_FILE",
+                "/root/muse-diffusion/.env",
+            ),
+            remote_port=int(os.getenv("GATEWAY_REMOTE_PORT", "6006")),
         )

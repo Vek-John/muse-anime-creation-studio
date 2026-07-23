@@ -88,10 +88,7 @@ def test_cloud_password_is_required():
         json={
             "mode": "cloud",
             "ssh_command": "ssh root@gpu.example.com",
-            "auth_method": "password",
             "ssh_password": "",
-            "remote_api_key": "worker-secret",
-            "remote_port": 6006,
         },
     )
     assert response.status_code == 422

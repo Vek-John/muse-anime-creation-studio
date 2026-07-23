@@ -4,11 +4,11 @@
 
 - 本地 GPU：选择 Diffusers 模型目录或 SDXL `.safetensors/.ckpt` 文件，
   Gateway 自动启动本地推理进程。
-- 云端 GPU：填写 SSH 命令、认证信息、远端服务端口和远端 API 密钥，
-  Gateway 建立 SSH 隧道后转发生成请求。
+- 云端 GPU：只填写 AutoDL SSH 登录指令和密码，Gateway 登录后自动读取
+  `/root/muse-diffusion/.env` 中的 `API_KEY`，并连接远端 6006 端口。
 
-SSH 密码、私钥口令和远端 API 密钥只保存在 Gateway 进程内存，不写入前端
-`localStorage` 或仓库。Gateway 默认只监听回环地址，这是内部 Demo 的安全边界。
+SSH 密码和自动读取的远端 API 密钥只保存在 Gateway 进程内存，不写入前端
+存储或仓库。Gateway 默认只监听回环地址，这是内部 Demo 的安全边界。
 
 ## 启动
 
@@ -24,9 +24,10 @@ chmod +x gateway/start.sh
 ./gateway/start.sh
 ```
 
-云端模式要求模型服务器先运行 `app.main:app`，默认监听远端
-`127.0.0.1:6006`。第一次连接新服务器前，先在终端执行一次 SSH 命令并确认
-主机指纹，让它写入 `~/.ssh/known_hosts`。
+云端模式要求每台 AutoDL 使用相同目录约定：项目位于
+`/root/muse-diffusion`，模型服务监听 `127.0.0.1:6006`，API 密钥位于
+`/root/muse-diffusion/.env`。第一次连接新服务器前，先在终端执行一次 SSH
+命令并确认主机指纹，让它写入 `~/.ssh/known_hosts`。
 
 本地模式要求当前 Python 环境已经安装与显卡匹配的 PyTorch/CUDA。模型目录
 应包含 `model_index.json`；单文件模型支持 `.safetensors` 和 `.ckpt`。

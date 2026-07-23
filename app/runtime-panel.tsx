@@ -10,7 +10,6 @@ export type ConnectionStatus =
   | "error";
 
 type RuntimeMode = "local" | "cloud";
-type SshAuthMethod = "password" | "private_key";
 
 type DirectoryEntry = {
   name: string;
@@ -54,13 +53,7 @@ export function RuntimePanel({
   );
 
   const [sshCommand, setSshCommand] = useState("");
-  const [sshAuthMethod, setSshAuthMethod] =
-    useState<SshAuthMethod>("password");
   const [sshPassword, setSshPassword] = useState("");
-  const [sshPrivateKeyPath, setSshPrivateKeyPath] = useState("");
-  const [sshPrivateKeyPassphrase, setSshPrivateKeyPassphrase] = useState("");
-  const [remoteApiKey, setRemoteApiKey] = useState("");
-  const [remotePort, setRemotePort] = useState(6006);
 
   const [browserOpen, setBrowserOpen] = useState(false);
   const [directory, setDirectory] = useState<DirectoryListing | null>(null);
@@ -116,12 +109,9 @@ export function RuntimePanel({
     }
     if (
       mode === "cloud" &&
-      (!sshCommand.trim() ||
-        !remoteApiKey ||
-        (sshAuthMethod === "password" && !sshPassword) ||
-        (sshAuthMethod === "private_key" && !sshPrivateKeyPath.trim()))
+      (!sshCommand.trim() || !sshPassword)
     ) {
-      onConnectionChange("error", "请完整填写 SSH 与远端服务信息");
+      onConnectionChange("error", "请填写 AutoDL SSH 指令和登录密码");
       return;
     }
 
@@ -140,12 +130,7 @@ export function RuntimePanel({
         : {
             mode: "cloud",
             ssh_command: sshCommand.trim(),
-            auth_method: sshAuthMethod,
             ssh_password: sshPassword,
-            ssh_private_key_path: sshPrivateKeyPath.trim(),
-            ssh_private_key_passphrase: sshPrivateKeyPassphrase,
-            remote_api_key: remoteApiKey,
-            remote_port: remotePort,
           };
 
     try {
@@ -161,8 +146,6 @@ export function RuntimePanel({
 
       if (mode === "cloud") {
         setSshPassword("");
-        setSshPrivateKeyPassphrase("");
-        setRemoteApiKey("");
       }
       await checkConnection();
     } catch (error) {
@@ -376,7 +359,7 @@ export function RuntimePanel({
       ) : (
         <div className="runtime-config-block">
           <label>
-            <span>SSH 地址</span>
+            <span>AutoDL SSH 登录指令</span>
             <input
               type="text"
               value={sshCommand}
@@ -388,93 +371,22 @@ export function RuntimePanel({
               spellCheck={false}
             />
           </label>
-          <div className="runtime-inline-fields">
-            <label>
-              <span>SSH 认证</span>
-              <select
-                value={sshAuthMethod}
-                onChange={(event) => {
-                  setSshAuthMethod(event.target.value as SshAuthMethod);
-                  markChanged();
-                }}
-              >
-                <option value="password">密码</option>
-                <option value="private_key">私钥路径</option>
-              </select>
-            </label>
-            <label>
-              <span>远端服务端口</span>
-              <input
-                type="number"
-                min={1}
-                max={65535}
-                value={remotePort}
-                onChange={(event) => {
-                  setRemotePort(Number(event.target.value));
-                  markChanged();
-                }}
-              />
-            </label>
-          </div>
-
-          {sshAuthMethod === "password" ? (
-            <label>
-              <span>SSH 密码</span>
-              <input
-                type="password"
-                value={sshPassword}
-                onChange={(event) => {
-                  setSshPassword(event.target.value);
-                  markChanged();
-                }}
-                placeholder="仅发送到本机 Gateway"
-                autoComplete="off"
-              />
-            </label>
-          ) : (
-            <>
-              <label>
-                <span>SSH 私钥路径</span>
-                <input
-                  type="text"
-                  value={sshPrivateKeyPath}
-                  onChange={(event) => {
-                    setSshPrivateKeyPath(event.target.value);
-                    markChanged();
-                  }}
-                  placeholder="~/.ssh/id_ed25519"
-                  spellCheck={false}
-                />
-              </label>
-              <label>
-                <span>私钥口令（可选）</span>
-                <input
-                  type="password"
-                  value={sshPrivateKeyPassphrase}
-                  onChange={(event) => {
-                    setSshPrivateKeyPassphrase(event.target.value);
-                    markChanged();
-                  }}
-                  placeholder="仅发送到本机 Gateway"
-                  autoComplete="off"
-                />
-              </label>
-            </>
-          )}
-
           <label>
-            <span>远端模型 API 密钥</span>
+            <span>AutoDL SSH 登录密码</span>
             <input
               type="password"
-              value={remoteApiKey}
+              value={sshPassword}
               onChange={(event) => {
-                setRemoteApiKey(event.target.value);
+                setSshPassword(event.target.value);
                 markChanged();
               }}
-              placeholder="通过 SSH 隧道使用，连接后自动清空"
+              placeholder="仅发送到本机 Gateway，连接后自动清空"
               autoComplete="off"
             />
           </label>
+          <p className="autodl-convention">
+            自动读取 /root/muse-diffusion/.env，并连接远端 6006 端口。
+          </p>
         </div>
       )}
 
