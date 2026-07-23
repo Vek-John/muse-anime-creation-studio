@@ -28,6 +28,7 @@ body {
 }
 
 button,
+input,
 select,
 textarea {
   color: inherit;
@@ -127,6 +128,17 @@ a {
   border-radius: 50%;
   height: 6px;
   width: 6px;
+}
+
+.api-connected i {
+  background: #82d95e;
+  box-shadow: 0 0 0 4px rgba(130, 217, 94, 0.14);
+}
+
+.api-starting i,
+.api-checking i {
+  animation: pulse 1s ease-in-out infinite;
+  background: #e6b94c;
 }
 
 .ghost-link {
@@ -465,6 +477,109 @@ a {
   padding: 2px 2px 14px;
 }
 
+.server-panel {
+  border-bottom: 1px solid rgba(242, 240, 234, 0.18);
+  border-top: 1px solid rgba(242, 240, 234, 0.18);
+  margin-bottom: 18px;
+}
+
+.server-panel > summary {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  list-style: none;
+  padding: 15px 2px;
+}
+
+.server-panel > summary::-webkit-details-marker,
+.advanced-settings > summary::-webkit-details-marker,
+.negative-settings > summary::-webkit-details-marker {
+  display: none;
+}
+
+.server-panel > summary span {
+  align-items: center;
+  display: inline-flex;
+  font-size: 10px;
+  gap: 9px;
+  letter-spacing: 0.08em;
+}
+
+.server-panel > summary small {
+  color: rgba(242, 240, 234, 0.5);
+  font-size: 9px;
+}
+
+.connection-dot {
+  background: var(--coral);
+  border-radius: 50%;
+  display: inline-block;
+  height: 6px;
+  width: 6px;
+}
+
+.dot-connected {
+  background: #82d95e;
+}
+
+.dot-starting,
+.dot-checking {
+  animation: pulse 1s ease-in-out infinite;
+  background: #e6b94c;
+}
+
+.server-fields {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr;
+  padding: 0 2px 16px;
+}
+
+.server-fields label {
+  display: grid;
+  gap: 7px;
+}
+
+.server-fields label > span {
+  color: rgba(242, 240, 234, 0.52);
+  font-size: 8px;
+  letter-spacing: 0.08em;
+}
+
+.server-fields input {
+  background: #232325;
+  border: 1px solid rgba(242, 240, 234, 0.18);
+  color: var(--paper);
+  min-height: 42px;
+  outline: 0;
+  padding: 0 12px;
+  width: 100%;
+}
+
+.server-fields input:focus {
+  border-color: var(--acid);
+}
+
+.server-fields button {
+  background: transparent;
+  border: 1px solid rgba(242, 240, 234, 0.3);
+  color: var(--paper);
+  font-size: 9px;
+  min-height: 38px;
+}
+
+.server-fields button:hover {
+  border-color: var(--acid);
+  color: var(--acid);
+}
+
+.server-fields p {
+  color: rgba(242, 240, 234, 0.48);
+  font-size: 9px;
+  line-height: 1.5;
+  margin: 0;
+}
+
 .preview-stage {
   aspect-ratio: 1 / 0.83;
   background:
@@ -472,6 +587,14 @@ a {
     #35333a;
   overflow: hidden;
   position: relative;
+}
+
+.generated-image {
+  height: 100%;
+  inset: 0;
+  object-fit: cover;
+  position: absolute;
+  width: 100%;
 }
 
 .preview-noise {
@@ -577,6 +700,46 @@ a {
   font-size: 11px;
 }
 
+.preview-error {
+  background: rgba(75, 27, 23, 0.9);
+}
+
+.preview-error strong {
+  color: #ffb0a5;
+}
+
+.result-meta {
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.72));
+  bottom: 0;
+  display: flex;
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 8px;
+  justify-content: space-between;
+  left: 0;
+  letter-spacing: 0.09em;
+  padding: 36px 16px 14px;
+  position: absolute;
+  right: 0;
+}
+
+.download-button {
+  align-items: center;
+  background: #29292b;
+  border: 0;
+  border-bottom: 1px solid rgba(242, 240, 234, 0.18);
+  color: var(--paper);
+  display: flex;
+  font-size: 10px;
+  justify-content: space-between;
+  min-height: 44px;
+  padding: 0 14px;
+  width: 100%;
+}
+
+.download-button:hover {
+  color: var(--acid);
+}
+
 .loader {
   animation: spin 700ms linear infinite;
   border: 1px solid rgba(242, 240, 234, 0.28);
@@ -589,6 +752,12 @@ a {
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.35;
   }
 }
 
@@ -689,6 +858,99 @@ a {
   color: rgba(242, 240, 234, 0.28);
 }
 
+.advanced-settings,
+.negative-settings {
+  border-bottom: 1px solid rgba(242, 240, 234, 0.15);
+  margin-top: 14px;
+}
+
+.advanced-settings > summary,
+.negative-settings > summary {
+  color: rgba(242, 240, 234, 0.68);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  list-style: none;
+  padding: 12px 0;
+}
+
+.advanced-settings > summary::after,
+.negative-settings > summary::after {
+  content: "+";
+  float: right;
+}
+
+.advanced-settings[open] > summary::after,
+.negative-settings[open] > summary::after {
+  content: "−";
+}
+
+.size-presets {
+  display: grid;
+  gap: 5px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding-bottom: 12px;
+}
+
+.size-presets button {
+  background: transparent;
+  border: 1px solid rgba(242, 240, 234, 0.18);
+  color: rgba(242, 240, 234, 0.6);
+  font-size: 8px;
+  min-height: 32px;
+  padding: 3px;
+}
+
+.size-presets button.active {
+  background: var(--acid);
+  border-color: var(--acid);
+  color: var(--ink);
+}
+
+.advanced-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding-bottom: 14px;
+}
+
+.advanced-grid label {
+  display: grid;
+  gap: 6px;
+}
+
+.advanced-grid label > span {
+  color: rgba(242, 240, 234, 0.46);
+  font-size: 8px;
+}
+
+.advanced-grid input,
+.advanced-grid select {
+  appearance: none;
+  background: #232325;
+  border: 1px solid rgba(242, 240, 234, 0.16);
+  color: var(--paper);
+  min-height: 38px;
+  outline: 0;
+  padding: 0 10px;
+  width: 100%;
+}
+
+.advanced-grid input:focus,
+.advanced-grid select:focus {
+  border-color: var(--acid);
+}
+
+.advanced-grid .wide-control {
+  grid-column: 1 / -1;
+}
+
+.negative-settings textarea {
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 9px;
+  min-height: 82px;
+  margin: 0 0 14px;
+}
+
 .compiled-prompt {
   border-left: 2px solid var(--violet);
   margin: 16px 0;
@@ -771,6 +1033,13 @@ a {
   overflow: auto;
   padding: 14px;
   white-space: pre-wrap;
+}
+
+.license-note {
+  color: rgba(242, 240, 234, 0.38);
+  font-size: 8px;
+  line-height: 1.65;
+  margin: 18px 2px 2px;
 }
 
 footer {
@@ -909,6 +1178,10 @@ footer {
     margin-left: -8px;
     margin-right: -8px;
     padding: 14px;
+  }
+
+  .size-presets {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   footer {
