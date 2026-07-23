@@ -546,7 +546,10 @@ a {
   letter-spacing: 0.08em;
 }
 
-.server-fields input {
+.server-fields input,
+.server-fields select,
+.server-fields textarea {
+  appearance: none;
   background: #232325;
   border: 1px solid rgba(242, 240, 234, 0.18);
   color: var(--paper);
@@ -556,7 +559,16 @@ a {
   width: 100%;
 }
 
-.server-fields input:focus {
+.server-fields textarea {
+  min-height: 76px;
+  padding-bottom: 10px;
+  padding-top: 10px;
+  resize: vertical;
+}
+
+.server-fields input:focus,
+.server-fields select:focus,
+.server-fields textarea:focus {
   border-color: var(--acid);
 }
 
@@ -578,6 +590,227 @@ a {
   font-size: 9px;
   line-height: 1.5;
   margin: 0;
+}
+
+.gateway-note {
+  background: rgba(143, 108, 255, 0.12);
+  border: 1px solid rgba(143, 108, 255, 0.36);
+  display: grid;
+  gap: 5px;
+  padding: 11px 12px;
+}
+
+.gateway-note strong {
+  color: var(--paper);
+  font-size: 10px;
+}
+
+.gateway-note span {
+  color: rgba(242, 240, 234, 0.5);
+  font-size: 8px;
+  line-height: 1.5;
+}
+
+.runtime-mode-switch {
+  display: grid;
+  gap: 7px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.server-fields .runtime-mode-switch button {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-height: 62px;
+  padding: 11px;
+  text-align: left;
+}
+
+.runtime-mode-switch button strong {
+  font-size: 10px;
+}
+
+.runtime-mode-switch button span {
+  color: rgba(242, 240, 234, 0.42);
+  font-size: 8px;
+}
+
+.server-fields .runtime-mode-switch button.active {
+  background: var(--acid);
+  border-color: var(--acid);
+  color: var(--ink);
+}
+
+.runtime-mode-switch button.active span {
+  color: rgba(23, 23, 24, 0.62);
+}
+
+.runtime-config-block {
+  border-left: 2px solid rgba(214, 255, 63, 0.48);
+  display: grid;
+  gap: 10px;
+  padding-left: 10px;
+}
+
+.runtime-inline-fields {
+  align-items: end;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.checkbox-field {
+  align-items: center;
+  border: 1px solid rgba(242, 240, 234, 0.18);
+  display: flex !important;
+  flex-direction: row;
+  min-height: 42px;
+  padding: 0 11px;
+}
+
+.server-fields .checkbox-field input {
+  accent-color: var(--acid);
+  appearance: auto;
+  min-height: auto;
+  padding: 0;
+  width: auto;
+}
+
+.checkbox-field span {
+  color: rgba(242, 240, 234, 0.68) !important;
+}
+
+.path-input-row {
+  display: grid;
+  gap: 7px;
+  grid-template-columns: minmax(0, 1fr) 62px;
+}
+
+.server-fields .path-input-row button {
+  min-height: 42px;
+}
+
+.path-browser {
+  background: #111112;
+  border: 1px solid rgba(242, 240, 234, 0.2);
+  display: grid;
+  gap: 9px;
+  max-height: 340px;
+  overflow: hidden;
+  padding: 11px;
+}
+
+.path-browser-head {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.path-browser-head strong {
+  font-size: 10px;
+}
+
+.server-fields .path-browser-head button {
+  border: 0;
+  color: rgba(242, 240, 234, 0.56);
+  min-height: auto;
+  padding: 3px;
+}
+
+.path-browser code {
+  color: var(--acid);
+  font-size: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.path-browser-list {
+  display: grid;
+  gap: 5px;
+  max-height: 210px;
+  overflow: auto;
+}
+
+.server-fields .path-browser-list > button,
+.server-fields .path-entry > button:first-child {
+  align-items: center;
+  background: #222224;
+  border: 0;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 42px minmax(0, 1fr);
+  min-height: 36px;
+  padding: 7px 9px;
+  text-align: left;
+}
+
+.path-browser-list button span {
+  color: var(--violet);
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 7px;
+}
+
+.path-browser-list button strong {
+  font-size: 9px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.path-entry {
+  display: grid;
+  gap: 5px;
+  grid-template-columns: minmax(0, 1fr) 48px;
+}
+
+.server-fields .path-entry > button:last-child {
+  min-height: 36px;
+}
+
+.server-fields .use-current-path {
+  background: var(--violet);
+  border-color: var(--violet);
+  color: #fff;
+}
+
+.runtime-actions {
+  display: grid;
+  gap: 7px;
+  grid-template-columns: 1.35fr 0.65fr;
+}
+
+.server-fields .runtime-actions button {
+  padding: 0 8px;
+}
+
+.server-fields .runtime-actions .configure-runtime-button {
+  background: var(--coral);
+  border-color: var(--coral);
+  color: var(--ink);
+  font-weight: 750;
+}
+
+.server-fields button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.server-fields .runtime-message {
+  border-left: 2px solid rgba(242, 240, 234, 0.22);
+  padding-left: 9px;
+}
+
+.server-fields .message-connected {
+  border-color: #82d95e;
+  color: #a6e68d;
+}
+
+.server-fields .message-error,
+.server-fields .field-error {
+  border-color: var(--coral);
+  color: #ff9a8d;
 }
 
 .preview-stage {
@@ -1199,6 +1432,11 @@ footer {
 
   .size-presets {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .runtime-inline-fields,
+  .runtime-actions {
+    grid-template-columns: 1fr;
   }
 
   footer {

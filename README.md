@@ -1,15 +1,16 @@
 # MUSE — 二次元文生图创作台
 
-一个可连接远程 NVIDIA GPU 的二次元文生图工作台。前端可以在本机浏览器
-打开，模型和显存计算放在服务器上完成。
+一个同时支持本地 NVIDIA GPU 和云端 GPU 的二次元文生图工作台。所有人使用
+相同前端与参数协议，通过本机 Runtime Gateway 选择自己的模型运行环境。
 
 ## 当前包含
 
 - 图片需求中的 8 个参数大类和 22 个下拉控制项
 - 文生图描述输入框与自动组合提示词
 - 已选参数标签、移除、重置和复制提示词
-- Animagine XL 4.0 / SDXL 远程生成接口
-- 服务器地址、API 密钥和连通状态设置
+- 本地 Diffusers 模型目录与 `.safetensors/.ckpt` 单文件选择
+- 云端 SSH 隧道、密码/私钥认证和远端 API 密钥连接
+- 本机 Runtime Gateway 与统一生成接口
 - 尺寸、采样步数、CFG、种子、采样器、Clip Skip、负面词控制
 - 真实成图预览和 PNG 下载
 - 中文结构化选项到动漫模型英文标签的映射
@@ -37,9 +38,31 @@ npm test
 - 参数策划：`app/studio-config.ts`
 - 提示词映射：`app/prompt-tags.ts`
 - 模型服务：`backend/app/`
-- GPU 部署：`backend/compose.yaml` 或 `backend/autodl/`
+- 本机/云端调度：`backend/gateway/`
+- GPU 工作节点部署：`backend/compose.yaml` 或 `backend/autodl/`
 
-## 远程模型服务
+## 启动 Runtime Gateway
+
+每个使用前端的同事都在自己电脑上启动一次 Gateway：
+需要 Python 3.10 或更高版本。
+
+```bash
+cd backend
+python3 -m venv .venv --system-site-packages
+source .venv/bin/activate
+pip install -r requirements.txt
+cp gateway/.env.example gateway/.env
+./gateway/start.sh
+```
+
+前端默认连接 `http://127.0.0.1:8000`。选择“本地 GPU”时，Gateway 会从所选
+模型路径启动本地推理进程；选择“云端 GPU”时，Gateway 会通过 SSH 隧道连接
+远端工作节点。SSH 密码、私钥口令和远端 API 密钥只保存在 Gateway 内存中，
+不会写入浏览器存储或 Git。
+
+详细说明见 `backend/gateway/README.md`。
+
+## GPU 工作节点
 
 通用 NVIDIA Docker 部署说明见 `backend/README.md`。AutoDL 个人联调说明见
 `backend/autodl/README.md`。
@@ -60,8 +83,9 @@ npm test
 }
 ```
 
-API 密钥只存放在本机浏览器 `localStorage`，不会写入仓库。若以后将前端公开
-给客户使用，不应把服务器密钥发到浏览器，需要再增加自己的业务后端代理。
+前端不持久化 SSH 或模型服务密钥。当前 Gateway 是内部 Demo 基础设施，只
+监听 `127.0.0.1`；若以后公开给客户使用，需要增加正式业务后端、用户鉴权
+和集中任务队列。
 
 ## 商用说明
 

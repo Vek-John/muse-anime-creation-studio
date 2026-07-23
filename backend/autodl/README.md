@@ -26,9 +26,7 @@ openssl rand -hex 32
 bash autodl/start-background.sh
 ```
 
-第一次启动会把模型缓存到 `/root/autodl-tmp/muse-models`。在 AutoDL
-控制台复制 6006 端口的自定义服务 HTTPS 地址，填入本地前端的“API 地址”，
-再填入同一个 API 密钥即可。
-
-如自定义服务未启用，也可以从 Mac 建立 SSH 隧道，把实例 6006 映射到本地
-8000 端口；此时前端 API 地址保持 `http://localhost:8000`。
+第一次启动会把模型缓存到 `/root/autodl-tmp/muse-models`。本机启动
+Runtime Gateway 后，在前端选择“云端 GPU”，填写 AutoDL SSH 命令、SSH
+认证信息、远端端口 `6006` 和 `.env` 中的 `API_KEY`。Gateway 会自动建立
+隧道，不再需要把 AutoDL 的自定义服务公网地址交给浏览器。

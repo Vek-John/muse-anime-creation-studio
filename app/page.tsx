@@ -1,11 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   DEFAULT_NEGATIVE_PROMPT,
   QUALITY_PREFIX,
   toModelPrompt,
 } from "./prompt-tags";
+import {
+  ConnectionStatus,
+  RuntimePanel,
+} from "./runtime-panel";
 import { DEFAULT_SELECTIONS, PARAMETER_GROUPS } from "./studio-config";
 
 const FIELD_LABELS = Object.fromEntries(
@@ -29,12 +33,6 @@ const SAMPLERS = [
 ];
 
 type GenerationStatus = "idle" | "generating" | "ready" | "error";
-type ConnectionStatus =
-  | "unchecked"
-  | "checking"
-  | "starting"
-  | "connected"
-  | "error";
 
 type GenerationResult = {
   request_id: string;
@@ -74,13 +72,11 @@ export default function Home() {
   const [errorMessage, setErrorMessage] = useState("");
   const [result, setResult] = useState<GenerationResult | null>(null);
 
-  const [apiUrl, setApiUrl] = useState("http://localhost:8000");
-  const [apiKey, setApiKey] = useState("");
-  const [settingsLoaded, setSettingsLoaded] = useState(false);
+  const [gatewayUrl, setGatewayUrl] = useState("http://127.0.0.1:8000");
   const [connection, setConnection] =
     useState<ConnectionStatus>("unchecked");
   const [connectionMessage, setConnectionMessage] = useState(
-    "填写服务器地址和密钥后检查连接",
+    "选择本地模型，或通过 SSH 连接云端 GPU",
   );
 
   const [width, setWidth] = useState(1024);
@@ -90,20 +86,6 @@ export default function Home() {
   const [seed, setSeed] = useState(-1);
   const [sampler, setSampler] = useState("dpmpp_2m_karras");
   const [clipSkip, setClipSkip] = useState(2);
-
-  useEffect(() => {
-    const storedUrl = window.localStorage.getItem("muse.diffusion.apiUrl");
-    const storedKey = window.localStorage.getItem("muse.diffusion.apiKey");
-    if (storedUrl) setApiUrl(storedUrl);
-    if (storedKey) setApiKey(storedKey);
-    setSettingsLoaded(true);
-  }, []);
-
-  useEffect(() => {
-    if (!settingsLoaded) return;
-    window.localStorage.setItem("muse.diffusion.apiUrl", apiUrl);
-    window.localStorage.setItem("muse.diffusion.apiKey", apiKey);
-  }, [apiKey, apiUrl, settingsLoaded]);
 
   const selectedEntries = useMemo(
     () => Object.entries(selections).filter(([, value]) => Boolean(value)),
@@ -182,45 +164,12 @@ export default function Home() {
     window.setTimeout(() => setCopied(false), 1600);
   }
 
-  async function checkConnection() {
-    const baseUrl = normalizeApiUrl(apiUrl);
-    if (!baseUrl || !apiKey) {
-      setConnection("error");
-      setConnectionMessage("请填写服务器地址和 API 密钥");
-      return;
-    }
-
-    setConnection("checking");
-    setConnectionMessage("正在联系服务器");
-    try {
-      const response = await fetch(`${baseUrl}/v1/status`, {
-        headers: { Authorization: `Bearer ${apiKey}` },
-      });
-      const body = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        throw new Error(body.detail || `服务器返回 ${response.status}`);
-      }
-      if (body.model_loaded) {
-        setConnection("connected");
-        setConnectionMessage(`${body.model} · ${body.device}`);
-      } else {
-        setConnection("starting");
-        setConnectionMessage(`${body.model} 正在加载，稍后再试`);
-      }
-    } catch (error) {
-      setConnection("error");
-      setConnectionMessage(
-        error instanceof Error ? error.message : "无法连接服务器",
-      );
-    }
-  }
-
   async function handleGenerate() {
-    const baseUrl = normalizeApiUrl(apiUrl);
+    const baseUrl = normalizeApiUrl(gatewayUrl);
     if (!combinedPrompt || status === "generating") return;
-    if (!baseUrl || !apiKey) {
+    if (!baseUrl) {
       setStatus("error");
-      setErrorMessage("请先填写服务器地址和 API 密钥");
+      setErrorMessage("请先启动本机 Runtime Gateway");
       return;
     }
 
@@ -233,7 +182,6 @@ export default function Home() {
       const response = await fetch(`${baseUrl}/v1/generate`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
@@ -306,30 +254,30 @@ export default function Home() {
 
       <section className="hero" id="top">
         <div className="hero-copy">
-          <p className="eyebrow">REMOTE GENERATION CONSOLE / 01</p>
+          <p className="eyebrow">HYBRID GENERATION CONSOLE / 01</p>
           <h1>
             把灵感，
             <br />
             <em>调成画面。</em>
           </h1>
           <p className="hero-description">
-            本地前端连接远程 GPU 的二次元生成工作台。模型在服务器运行，
-            你的电脑只负责组织参数、发起生成和接收成图。
+            同一套前端可以启动本机模型，也可以通过 SSH 隧道调用云端 GPU。
+            每位同事按自己的算力环境切换，参数与出图流程保持一致。
           </p>
           <div className="hero-meta">
             <span>08 参数域</span>
-            <span>远程 NVIDIA GPU</span>
-            <span>API 密钥保护</span>
+            <span>本地 / 云端 GPU</span>
+            <span>SSH 内网隧道</span>
           </div>
         </div>
 
         <div className="hero-visual" aria-hidden="true">
-          <span className="visual-label">PROMPT / REMOTE INFERENCE</span>
+          <span className="visual-label">PROMPT / HYBRID INFERENCE</span>
           <div className="orb orb-one" />
           <div className="orb orb-two" />
           <div className="orb orb-three" />
           <div className="grid-lines" />
-          <span className="visual-coordinates">LOCAL UI / REMOTE GPU</span>
+          <span className="visual-coordinates">LOCAL MODEL / CLOUD GPU</span>
           <span className="visual-index">01</span>
         </div>
       </section>
@@ -396,8 +344,8 @@ export default function Home() {
 
           <aside className="creation-console" id="prompt">
             <div className="console-topline">
-              <span>ANIMAGINE XL 4.0</span>
-              <span>REMOTE GPU / V1</span>
+              <span>MODEL RUNTIME</span>
+              <span>LOCAL / CLOUD · V2</span>
             </div>
 
             <details
@@ -408,42 +356,20 @@ export default function Home() {
               <summary>
                 <span>
                   <i className={`connection-dot dot-${connection}`} />
-                  生成服务器
+                  模型运行环境
                 </span>
                 <small>{connectionLabel(connection)}</small>
               </summary>
-              <div className="server-fields">
-                <label>
-                  <span>API 地址</span>
-                  <input
-                    type="url"
-                    value={apiUrl}
-                    onChange={(event) => {
-                      setApiUrl(event.target.value);
-                      setConnection("unchecked");
-                    }}
-                    placeholder="https://diffusion.example.com"
-                    spellCheck={false}
-                  />
-                </label>
-                <label>
-                  <span>API 密钥</span>
-                  <input
-                    type="password"
-                    value={apiKey}
-                    onChange={(event) => {
-                      setApiKey(event.target.value);
-                      setConnection("unchecked");
-                    }}
-                    placeholder="只保存在本机浏览器"
-                    autoComplete="off"
-                  />
-                </label>
-                <button type="button" onClick={checkConnection}>
-                  {connection === "checking" ? "检查中…" : "检查连接"}
-                </button>
-                <p>{connectionMessage}</p>
-              </div>
+              <RuntimePanel
+                gatewayUrl={gatewayUrl}
+                connection={connection}
+                connectionMessage={connectionMessage}
+                onGatewayUrlChange={setGatewayUrl}
+                onConnectionChange={(nextStatus, message) => {
+                  setConnection(nextStatus);
+                  setConnectionMessage(message);
+                }}
+              />
             </details>
 
             <div className={`preview-stage preview-${status}`}>
@@ -697,9 +623,9 @@ export default function Home() {
             </details>
 
             <p className="license-note">
-              默认模型：Animagine XL 4.0 · CreativeML Open RAIL++-M
+              运行方式：本地模型进程或 SSH 云端工作节点
               <br />
-              商用时仍需审查角色、素材、商标和生成内容的第三方权利。
+              每个模型的许可证不同，商用前仍需单独核对模型与素材权利。
             </p>
           </aside>
         </div>
@@ -707,7 +633,7 @@ export default function Home() {
 
       <footer>
         <span>MUSE / ANIME PROMPT STUDIO</span>
-        <span>LOCAL UI · REMOTE GPU · 2026</span>
+        <span>LOCAL GATEWAY · HYBRID GPU · 2026</span>
       </footer>
     </main>
   );

@@ -6,6 +6,7 @@ import io
 import secrets
 import time
 from dataclasses import dataclass
+from pathlib import Path
 from threading import Lock
 
 from .config import Settings
@@ -52,12 +53,21 @@ class DiffusionEngine:
                     if self.settings.torch_dtype == "bfloat16"
                     else torch.float16
                 )
-                pipe = StableDiffusionXLPipeline.from_pretrained(
-                    self.settings.model_id,
-                    torch_dtype=dtype,
-                    use_safetensors=True,
-                    token=self.settings.hf_token,
-                )
+                model_path = Path(self.settings.model_id).expanduser()
+                if model_path.is_file():
+                    pipe = StableDiffusionXLPipeline.from_single_file(
+                        str(model_path),
+                        torch_dtype=dtype,
+                        use_safetensors=model_path.suffix.lower()
+                        == ".safetensors",
+                    )
+                else:
+                    pipe = StableDiffusionXLPipeline.from_pretrained(
+                        self.settings.model_id,
+                        torch_dtype=dtype,
+                        use_safetensors=True,
+                        token=self.settings.hf_token,
+                    )
 
                 pipe.enable_vae_slicing()
                 pipe.vae.enable_tiling()
