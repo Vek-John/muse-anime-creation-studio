@@ -29,5 +29,6 @@ bash autodl/start-background.sh
 第一次启动会把模型缓存到 `/root/autodl-tmp/muse-models`。本机启动
 Runtime Gateway 后，在前端选择“云端 GPU”，填写 AutoDL SSH 命令、SSH
 登录密码即可。Gateway 会自动读取 `/root/muse-diffusion/.env` 的
-`API_KEY`，连接远端 `6006` 并建立隧道，不再需要手动复制模型 API 密钥或
-把 AutoDL 的自定义服务公网地址交给浏览器。
+`API_KEY`，检查并按需启动远端模型服务，再连接 `6006` 并建立隧道，不再
+需要手动复制模型 API 密钥或把 AutoDL 的自定义服务公网地址交给浏览器。
+AutoDL 实例重启后，重新在网页连接即可，不需要手动执行启动脚本。

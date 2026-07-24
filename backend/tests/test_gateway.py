@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 from dataclasses import replace
 
 from fastapi.testclient import TestClient
@@ -92,3 +93,61 @@ def test_cloud_password_is_required():
         },
     )
     assert response.status_code == 422
+
+
+class FakeSSHResult:
+    def __init__(
+        self,
+        exit_status: int,
+        *,
+        stdout: str = "",
+        stderr: str = "",
+    ):
+        self.exit_status = exit_status
+        self.stdout = stdout
+        self.stderr = stderr
+
+
+class FakeSSHConnection:
+    def __init__(self, results):
+        self.results = iter(results)
+        self.commands = []
+
+    async def run(self, command, *, check):
+        self.commands.append((command, check))
+        return next(self.results)
+
+
+def test_cloud_connection_starts_remote_worker_when_health_check_fails():
+    settings = replace(
+        GatewaySettings.from_env(),
+        remote_start_command="start-muse-worker",
+        remote_start_timeout_seconds=1,
+    )
+    manager = RuntimeManager(settings)
+    connection = FakeSSHConnection(
+        [
+            FakeSSHResult(7),
+            FakeSSHResult(0, stdout="started"),
+            FakeSSHResult(0),
+        ]
+    )
+    manager._ssh_connection = connection
+
+    asyncio.run(manager._ensure_remote_worker())
+
+    assert [command for command, _ in connection.commands] == [
+        "curl -fsS --max-time 5 http://127.0.0.1:6006/healthz >/dev/null",
+        "start-muse-worker",
+        "curl -fsS --max-time 5 http://127.0.0.1:6006/healthz >/dev/null",
+    ]
+
+
+def test_cloud_connection_keeps_running_remote_worker():
+    manager = RuntimeManager(GatewaySettings.from_env())
+    connection = FakeSSHConnection([FakeSSHResult(0)])
+    manager._ssh_connection = connection
+
+    asyncio.run(manager._ensure_remote_worker())
+
+    assert len(connection.commands) == 1
