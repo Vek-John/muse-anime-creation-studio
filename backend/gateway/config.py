@@ -20,6 +20,8 @@ class GatewaySettings:
     worker_start_timeout_seconds: float
     remote_env_file: str
     remote_port: int
+    remote_start_command: str
+    remote_start_timeout_seconds: float
 
     @classmethod
     def from_env(cls) -> "GatewaySettings":
@@ -43,4 +45,11 @@ class GatewaySettings:
                 "/root/muse-diffusion/.env",
             ),
             remote_port=int(os.getenv("GATEWAY_REMOTE_PORT", "6006")),
+            remote_start_command=os.getenv(
+                "GATEWAY_REMOTE_START_COMMAND",
+                "cd /root/muse-diffusion && bash autodl/start-background.sh",
+            ),
+            remote_start_timeout_seconds=float(
+                os.getenv("GATEWAY_REMOTE_START_TIMEOUT", "120")
+            ),
         )

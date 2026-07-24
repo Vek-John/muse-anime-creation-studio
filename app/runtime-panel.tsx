@@ -64,7 +64,7 @@ export function RuntimePanel({
     onConnectionChange("unchecked", "配置有变化，请重新连接");
   }
 
-  async function checkConnection() {
+  async function checkConnection(waitUntilReady = false) {
     const baseUrl = normalizeGatewayUrl(gatewayUrl);
     if (!baseUrl) {
       onConnectionChange("error", "请填写本机 Gateway 地址");
@@ -73,20 +73,32 @@ export function RuntimePanel({
 
     onConnectionChange("checking", "正在检查运行环境");
     try {
-      const response = await fetch(`${baseUrl}/v1/status`);
-      const body = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        throw new Error(body.detail || `Gateway 返回 ${response.status}`);
-      }
-      if (body.model_loaded) {
+      const attempts = waitUntilReady ? 150 : 1;
+      for (let attempt = 0; attempt < attempts; attempt += 1) {
+        const response = await fetch(`${baseUrl}/v1/status`);
+        const body = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(body.detail || `Gateway 返回 ${response.status}`);
+        }
+        if (body.model_loaded) {
+          onConnectionChange(
+            "connected",
+            `${body.runtime?.mode === "local" ? "本地" : "云端"} · ${body.model} · ${body.device}`,
+          );
+          return;
+        }
         onConnectionChange(
-          "connected",
-          `${body.runtime?.mode === "local" ? "本地" : "云端"} · ${body.model} · ${body.device}`,
+          waitUntilReady ? "checking" : "starting",
+          `${body.model || "模型"}正在加载，可稍后检查状态`,
         );
-      } else {
+        if (attempt + 1 < attempts) {
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        }
+      }
+      if (waitUntilReady) {
         onConnectionChange(
           "starting",
-          `${body.model || "模型"}正在加载，可稍后检查状态`,
+          "远端模型加载时间较长，服务会继续启动，可稍后检查状态",
         );
       }
     } catch (error) {
@@ -117,7 +129,7 @@ export function RuntimePanel({
 
     onConnectionChange(
       "checking",
-      mode === "local" ? "正在启动本地模型" : "正在建立 SSH 隧道",
+      mode === "local" ? "正在启动本地模型" : "正在检查并启动远端模型",
     );
     const payload =
       mode === "local"
@@ -147,7 +159,7 @@ export function RuntimePanel({
       if (mode === "cloud") {
         setSshPassword("");
       }
-      await checkConnection();
+      await checkConnection(mode === "cloud");
     } catch (error) {
       onConnectionChange(
         "error",
@@ -385,7 +397,7 @@ export function RuntimePanel({
             />
           </label>
           <p className="autodl-convention">
-            自动读取 /root/muse-diffusion/.env，并连接远端 6006 端口。
+            自动读取 /root/muse-diffusion/.env；远端服务未运行时会自动启动。
           </p>
         </div>
       )}
@@ -401,12 +413,12 @@ export function RuntimePanel({
             ? "连接中…"
             : mode === "local"
               ? "启动本地模型"
-              : "建立 SSH 隧道"}
+              : "连接并启动"}
         </button>
         <button
           type="button"
           disabled={connection === "checking"}
-          onClick={checkConnection}
+          onClick={() => void checkConnection()}
         >
           检查状态
         </button>

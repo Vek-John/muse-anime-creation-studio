@@ -56,14 +56,9 @@ npm run dev:web       # 只启动前端
 npm run dev:gateway   # 只启动 Gateway
 ```
 
-如果 AutoDL 实例也重启过，需要先在 AutoDL 终端恢复 GPU 工作节点：
-
-```bash
-cd /root/muse-diffusion
-bash autodl/start-background.sh
-```
-
-然后回到网页，重新填写 AutoDL SSH 登录指令和密码并连接。
+如果 AutoDL 实例也重启过，直接回到网页重新填写 SSH 登录指令和密码即可。
+Gateway 会在登录后检查 GPU 工作节点；服务未运行时会自动启动并等待其恢复，
+不需要再进入 AutoDL 终端执行启动脚本。
 
 生产构建与测试：
 
@@ -75,8 +70,8 @@ npm test
 前端默认连接 `http://127.0.0.1:8000`。选择“本地 GPU”时，Gateway 会从所选
 模型路径启动本地推理进程；选择“云端 GPU”时，只需填写 AutoDL SSH 登录
 指令和密码。Gateway 会通过 SSH 登录，自动读取远端 `.env` 的 API 密钥并
-建立隧道。SSH 密码和远端 API 密钥只保存在 Gateway 内存中，不会写入
-浏览器存储或 Git。
+检查或启动远端模型服务，然后建立隧道。SSH 密码和远端 API 密钥只保存在
+Gateway 内存中，不会写入浏览器存储或 Git。
 
 详细说明见 `backend/gateway/README.md`。
 

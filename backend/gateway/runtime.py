@@ -232,6 +232,8 @@ class RuntimeManager:
                 f"未能从远端 {self.settings.remote_env_file} 读取 API_KEY。"
             )
 
+        await self._ensure_remote_worker()
+
         self._ssh_listener = await self._ssh_connection.forward_local_port(
             "127.0.0.1",
             0,
@@ -252,6 +254,43 @@ class RuntimeManager:
         body = response.json()
         self._state = "ready" if body.get("model_loaded") else "starting"
         self._detail = f"{body.get('model', '远端模型')} · {body.get('device', 'GPU')}"
+
+    async def _remote_worker_is_reachable(self) -> bool:
+        assert self._ssh_connection is not None
+        health_url = (
+            f"http://127.0.0.1:{self.settings.remote_port}/healthz"
+        )
+        result = await self._ssh_connection.run(
+            "curl -fsS --max-time 5 "
+            f"{shlex.quote(health_url)} >/dev/null",
+            check=False,
+        )
+        return result.exit_status == 0
+
+    async def _ensure_remote_worker(self) -> None:
+        assert self._ssh_connection is not None
+        if await self._remote_worker_is_reachable():
+            return
+
+        result = await self._ssh_connection.run(
+            self.settings.remote_start_command,
+            check=False,
+        )
+        if result.exit_status != 0:
+            output = (result.stderr or result.stdout).strip()
+            suffix = f"：{output[-500:]}" if output else ""
+            raise RuntimeError(f"远端模型服务自动启动失败{suffix}")
+
+        deadline = asyncio.get_running_loop().time() + (
+            self.settings.remote_start_timeout_seconds
+        )
+        while asyncio.get_running_loop().time() < deadline:
+            if await self._remote_worker_is_reachable():
+                return
+            await asyncio.sleep(1)
+        raise RuntimeError(
+            "远端模型服务自动启动超时，请检查 AutoDL 模型服务日志。"
+        )
 
     async def _wait_for_worker_health(self) -> None:
         assert self._base_url is not None
