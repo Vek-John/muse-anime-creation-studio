@@ -16,43 +16,60 @@
 - 中文结构化选项到动漫模型英文标签的映射
 - 桌面端和移动端响应式布局
 
-## 本地启动
+## 首次安装
 
-需要 Node.js `>=22.13.0`。
+需要 Node.js `>=22.13.0` 和 Python 3.10 或更高版本。首次克隆仓库后，
+先安装前端与 Gateway 依赖：
 
 ```bash
 npm install
+cd backend
+python3 -m venv .venv --system-site-packages
+source .venv/bin/activate
+pip install -r requirements.txt
+cp gateway/.env.example gateway/.env
+cd ..
+```
+
+完成一次上述安装后，在仓库根目录启动：
+
+```bash
 npm run dev
 ```
+
+`npm run dev` 会同时启动前端和本机 Runtime Gateway。默认访问地址为
+`http://localhost:3000`，Gateway 地址为 `http://127.0.0.1:8000`。
+
+## 以后再次启动
+
+电脑重启、终端关闭或以后重新打开项目时，不需要再次安装依赖或创建 Python
+环境。进入仓库根目录后直接运行：
+
+```bash
+npm run dev
+```
+
+也可以按需单独启动：
+
+```bash
+npm run dev:web       # 只启动前端
+npm run dev:gateway   # 只启动 Gateway
+```
+
+如果 AutoDL 实例也重启过，需要先在 AutoDL 终端恢复 GPU 工作节点：
+
+```bash
+cd /root/muse-diffusion
+bash autodl/start-background.sh
+```
+
+然后回到网页，重新填写 AutoDL SSH 登录指令和密码并连接。
 
 生产构建与测试：
 
 ```bash
 npm run build
 npm test
-```
-
-## 推荐分工
-
-- UI 同事：`app/page.tsx`、`app/globals.css`
-- 参数策划：`app/studio-config.ts`
-- 提示词映射：`app/prompt-tags.ts`
-- 模型服务：`backend/app/`
-- 本机/云端调度：`backend/gateway/`
-- GPU 工作节点部署：`backend/compose.yaml` 或 `backend/autodl/`
-
-## 启动 Runtime Gateway
-
-每个使用前端的同事都在自己电脑上启动一次 Gateway：
-需要 Python 3.10 或更高版本。
-
-```bash
-cd backend
-python3 -m venv .venv --system-site-packages
-source .venv/bin/activate
-pip install -r requirements.txt
-cp gateway/.env.example gateway/.env
-./gateway/start.sh
 ```
 
 前端默认连接 `http://127.0.0.1:8000`。选择“本地 GPU”时，Gateway 会从所选
@@ -62,6 +79,15 @@ cp gateway/.env.example gateway/.env
 浏览器存储或 Git。
 
 详细说明见 `backend/gateway/README.md`。
+
+## 推荐分工
+
+- UI 同事：`app/page.tsx`、`app/globals.css`
+- 参数策划：`app/studio-config.ts`
+- 提示词映射：`app/prompt-tags.ts`
+- 模型服务：`backend/app/`
+- 本机/云端调度：`backend/gateway/`
+- GPU 工作节点部署：`backend/compose.yaml` 或 `backend/autodl/`
 
 ## GPU 工作节点
 
