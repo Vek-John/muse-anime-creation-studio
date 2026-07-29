@@ -1,0 +1,203 @@
+{
+  "reviewedAt": "2026-07-28",
+  "reviewMethod": "Manual inspection of fixed-seed cloud outputs. First pass used 640x640, 16 steps, CFG 5 and Euler A. Failed or ambiguous fields were re-tested at the model-card recommendation of 1024x1024, 28 steps, CFG 5 and Euler A with reinforced tag phrases.",
+  "firstPassSummary": {
+    "semanticFieldsReviewed": 22,
+    "pass": 10,
+    "partial": 4,
+    "fail": 6,
+    "inconclusive": 1,
+    "notDirectlyMeasurable": 1
+  },
+  "firstPass": [
+    {
+      "id": "field_baseStyle",
+      "status": "pass",
+      "observed": ["东方幻想庭院", "汉服", "统一古风画面"]
+    },
+    {
+      "id": "field_animeReference",
+      "status": "partial",
+      "observed": ["华丽幻想服装明显", "人物头部被裁掉"]
+    },
+    {
+      "id": "field_texture",
+      "status": "pass",
+      "observed": ["霓虹照明与发光轮廓明显"]
+    },
+    {
+      "id": "field_hairstyle",
+      "status": "pass",
+      "observed": ["深色到蓝色的发梢渐变清晰"]
+    },
+    {
+      "id": "field_facialFeatures",
+      "status": "inconclusive",
+      "observed": ["画面只生成一只眼睛，无法判断左右异瞳"]
+    },
+    {
+      "id": "field_faceDetails",
+      "status": "partial",
+      "observed": ["圆框眼镜清晰", "构图过度放大到单眼"]
+    },
+    {
+      "id": "field_campusIdentity",
+      "status": "fail",
+      "observed": ["1boy 与校草提示仍生成女性校园角色"]
+    },
+    {
+      "id": "field_personality",
+      "status": "pass",
+      "observed": ["成熟女性与冷静疏离气质清晰"]
+    },
+    {
+      "id": "field_specialSetting",
+      "status": "fail",
+      "observed": ["要求 2girls，结果出现三个人物剪影"]
+    },
+    {
+      "id": "field_outfit",
+      "status": "pass",
+      "observed": ["完整机械装甲与机甲紧身战衣"]
+    },
+    {
+      "id": "field_accessory",
+      "status": "partial",
+      "observed": ["书包清晰", "solo 主体被复制成两人"]
+    },
+    {
+      "id": "field_pose",
+      "status": "pass",
+      "observed": ["人物头到脚完整入镜"]
+    },
+    {
+      "id": "field_interaction",
+      "status": "fail",
+      "observed": ["只有脸部肖像，没有情书或递出动作"]
+    },
+    {
+      "id": "field_atmosphereAction",
+      "status": "fail",
+      "observed": ["有篮球与篮筐，但人物完全缺失"]
+    },
+    {
+      "id": "field_campusScene",
+      "status": "partial",
+      "observed": ["窗边明确", "教室语义较弱"]
+    },
+    {
+      "id": "field_animeScene",
+      "status": "pass",
+      "observed": ["赛博朋克街道与霓虹招牌明确"]
+    },
+    {
+      "id": "field_background",
+      "status": "fail",
+      "observed": ["背景为深灰蓝色，不是纯白"]
+    },
+    {
+      "id": "field_emotion",
+      "status": "pass",
+      "observed": ["害羞表情与脸红明确"]
+    },
+    {
+      "id": "field_tone",
+      "status": "pass",
+      "observed": ["冷酷、自信、街头感明确"]
+    },
+    {
+      "id": "field_format",
+      "status": "fail",
+      "observed": ["侧面构图且主体安全边距不足，不适合圆形裁剪"]
+    },
+    {
+      "id": "field_usage",
+      "status": "not_directly_measurable",
+      "observed": ["生成了较有区分度的全身角色，但单张图无法证明原创或不撞款"]
+    },
+    {
+      "id": "field_negativeConstraint",
+      "status": "pass",
+      "observed": ["头发轮廓和发丝细节清晰"]
+    }
+  ],
+  "targetedRetestSummary": {
+    "cases": 8,
+    "pass": 6,
+    "partial": 0,
+    "fail": 2,
+    "conclusion": "Most first-pass failures can be recovered with explicit subject, object, count and composition phrases. The unresolved mappings are 校草风男生 and 纯白背景."
+  },
+  "targetedRetests": [
+    {
+      "id": "retest_heterochromia",
+      "status": "pass",
+      "observed": ["完整正脸", "左右眼蓝红异色明确"]
+    },
+    {
+      "id": "retest_school_idol_boy",
+      "status": "fail",
+      "observed": ["即使加入 1boy、solo、male focus，仍生成女性水手服角色"]
+    },
+    {
+      "id": "retest_two_girls",
+      "status": "pass",
+      "observed": ["恰好两名女生", "同款服装以蓝色和粉色区分"]
+    },
+    {
+      "id": "retest_love_letter",
+      "status": "pass",
+      "observed": ["双手递出带爱心封口的信封，动作和物体均清晰"]
+    },
+    {
+      "id": "retest_basketball",
+      "status": "pass",
+      "observed": ["人物完整", "运球动作与篮球清晰"]
+    },
+    {
+      "id": "retest_white_background",
+      "status": "fail",
+      "observed": ["仍生成云海、地面和武器等复杂场景，不是纯白背景"]
+    },
+    {
+      "id": "retest_circular_crop",
+      "status": "pass",
+      "observed": ["正面头像居中，头肩区域可落入圆形安全区"]
+    },
+    {
+      "id": "retest_school_bag",
+      "status": "pass",
+      "observed": ["单个人物", "书包清晰可见"]
+    }
+  ],
+  "comparisonFindings": [
+    {
+      "pair": ["compare_scene_clean", "compare_scene_conflict"],
+      "result": "The clean prompt shows the character at a window. Adding classroom + fantasy forest + white background removes the character and produces a hybrid empty environment."
+    },
+    {
+      "pair": ["compare_count_clean", "compare_count_conflict"],
+      "result": "The clean prompt gives a balanced boy-and-girl pair. Adding solo creates a giant foreground female face and a tiny male figure."
+    },
+    {
+      "pair": ["compare_fullbody_early", "compare_fullbody_late"],
+      "result": "With the same seed and tags, early full body shows shoes; late full body is outside the 77-token context and the figure is cropped above the knees."
+    },
+    {
+      "pair": ["compare_action_clean", "compare_action_conflict"],
+      "result": "The compact action prompt is weak at low settings; combining three actions duplicates the subject and none of the requested actions is rendered reliably."
+    }
+  ],
+  "unresolvedHighRiskTags": [
+    {
+      "field": "campusIdentity",
+      "label": "校草风男生",
+      "reason": "Failed at both smoke and recommended settings."
+    },
+    {
+      "field": "background",
+      "label": "纯白背景",
+      "reason": "Failed at both smoke and recommended settings; likely needs negative-scene handling or a post-generation background workflow."
+    }
+  ]
+}

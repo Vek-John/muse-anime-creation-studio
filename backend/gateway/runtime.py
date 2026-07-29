@@ -376,6 +376,14 @@ class RuntimeManager:
             timeout=600,
         )
 
+    async def inspect_prompt(self, payload: dict[str, Any]) -> httpx.Response:
+        return await self._request(
+            "POST",
+            "/v1/prompt/inspect",
+            json=payload,
+            timeout=120,
+        )
+
     async def stop(self) -> None:
         async with self._lock:
             await self._stop_unlocked()

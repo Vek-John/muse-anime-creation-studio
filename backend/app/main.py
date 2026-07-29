@@ -10,8 +10,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from .config import Settings
-from .engine import DiffusionEngine
-from .schemas import GenerationRequest, GenerationResponse, HealthResponse
+from .engine import DiffusionEngine, PromptBudgetError
+from .schemas import (
+    GenerationRequest,
+    GenerationResponse,
+    HealthResponse,
+    PromptInspectionRequest,
+    PromptInspectionResponse,
+)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -88,6 +94,17 @@ async def runtime_error_handler(request: Request, exc: RuntimeError):
     )
 
 
+@app.exception_handler(PromptBudgetError)
+async def prompt_budget_error_handler(request: Request, exc: PromptBudgetError):
+    return JSONResponse(
+        status_code=422,
+        content={
+            "detail": str(exc),
+            "request_id": request.state.request_id,
+        },
+    )
+
+
 @app.get("/healthz", response_model=HealthResponse)
 async def healthz() -> HealthResponse:
     return HealthResponse(
@@ -124,3 +141,13 @@ async def generate(
         payload.sampler,
     )
     return await engine.generate(payload, request.state.request_id)
+
+
+@app.post("/v1/prompt/inspect", response_model=PromptInspectionResponse)
+async def inspect_prompt(
+    payload: PromptInspectionRequest,
+    _: None = Depends(require_api_key),
+) -> PromptInspectionResponse:
+    if len(payload.prompt) > settings.max_prompt_chars:
+        raise HTTPException(status_code=422, detail="Prompt is too long.")
+    return await engine.inspect_prompt(payload)

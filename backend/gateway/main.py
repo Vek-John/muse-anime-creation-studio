@@ -103,3 +103,22 @@ async def generate(request: Request) -> Response:
         media_type=response.headers.get("content-type", "application/json"),
         headers=headers,
     )
+
+
+@app.post("/v1/prompt/inspect")
+async def inspect_prompt(request: Request) -> Response:
+    try:
+        payload = await request.json()
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail="Invalid JSON body.") from exc
+
+    response = await runtime.inspect_prompt(payload)
+    headers = {}
+    if request_id := response.headers.get("X-Request-ID"):
+        headers["X-Request-ID"] = request_id
+    return Response(
+        content=response.content,
+        status_code=response.status_code,
+        media_type=response.headers.get("content-type", "application/json"),
+        headers=headers,
+    )

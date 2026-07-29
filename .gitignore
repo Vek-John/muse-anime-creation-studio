@@ -47,3 +47,9 @@ next-env.d.ts
 /outputs/
 /work/
 /backend/outputs/
+
+# Local diffusion regression artifacts
+/reports/**/outputs/
+/reports/**/contact-sheets/
+/reports/**/*-results.json
+!/reports/20260729_semantic_regression/release-results.json

@@ -1,0 +1,1774 @@
+{
+  "generatedAt": "2026-07-29T01:50:32.724Z",
+  "phase": "release",
+  "gateway": "http://127.0.0.1:8000",
+  "model": "cagliostrolab/animagine-xl-4.0",
+  "purpose": "Three-seed semantic adherence regression using the application's current prompt compiler and the model card's recommended inference settings.",
+  "settings": {
+    "width": 1024,
+    "height": 1024,
+    "steps": 28,
+    "guidance_scale": 5,
+    "sampler": "euler_a",
+    "clip_skip": 2,
+    "base_negative_prompt": "lowres, bad anatomy, bad hands, text, error, missing finger, extra digits, fewer digits, cropped, worst quality, low quality, low score, bad score, average score, signature, watermark, username, blurry",
+    "seeds_per_case": 3
+  },
+  "summary": {
+    "total": 24,
+    "generated": 24,
+    "generation_errors": 0
+  },
+  "cases": [
+    {
+      "id": "school_idol_boy",
+      "label": "校草风男生",
+      "selections": {
+        "baseStyle": "日系萌系",
+        "campusIdentity": "校草风男生",
+        "outfit": "校园西装",
+        "pose": "半身像",
+        "campusScene": "教室窗边"
+      },
+      "description": "looking at viewer",
+      "expected": [
+        "恰好一名男性角色",
+        "校园男生形象",
+        "半身构图"
+      ],
+      "compiler": {
+        "prompt": "1boy, solo, male focus, masculine face, handsome male student, school blazer, safe, upper body, looking at viewer, beside classroom window, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+        "prompt_segments": [
+          {
+            "id": "subject",
+            "label": "主体",
+            "text": "1boy, solo, male focus",
+            "slot": "subject",
+            "priority": 0,
+            "protected": true
+          },
+          {
+            "id": "selection:campusIdentity",
+            "label": "校园身份（人设） · 校草风男生",
+            "text": "masculine face, handsome male student, school blazer",
+            "slot": "identity",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "rating",
+            "label": "内容分级",
+            "text": "safe",
+            "slot": "rating",
+            "priority": 0,
+            "protected": true
+          },
+          {
+            "id": "selection:pose",
+            "label": "基础姿态 · 半身像",
+            "text": "upper body",
+            "slot": "framing",
+            "priority": 0,
+            "protected": true
+          },
+          {
+            "id": "custom:0",
+            "label": "自定义 · looking at viewer",
+            "text": "looking at viewer",
+            "slot": "action",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "selection:campusScene",
+            "label": "校园场景 · 教室窗边",
+            "text": "beside classroom window",
+            "slot": "scene",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "selection:baseStyle",
+            "label": "基础画风 · 日系萌系",
+            "text": "anime style",
+            "slot": "style",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "quality-guard",
+            "label": "质量约束 · 五官正常",
+            "text": "symmetrical face, correct facial features",
+            "slot": "quality",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "quality-suffix",
+            "label": "模型质量尾缀",
+            "text": "masterpiece, high score, great score, absurdres",
+            "slot": "suffix",
+            "priority": 0,
+            "protected": true
+          }
+        ],
+        "warnings": [],
+        "negative_additions": [
+          "1girl",
+          "female",
+          "woman",
+          "breasts",
+          "skirt"
+        ],
+        "negative_prompt": "lowres, bad anatomy, bad hands, text, error, missing finger, extra digits, fewer digits, cropped, worst quality, low quality, low score, bad score, average score, signature, watermark, username, blurry, 1girl, female, woman, breasts, skirt"
+      },
+      "inspection": {
+        "prompt": "1boy, solo, male focus, masculine face, handsome male student, school blazer, safe, upper body, looking at viewer, beside classroom window, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+        "negative_prompt": "lowres, bad anatomy, bad hands, text, error, missing finger, extra digits, fewer digits, cropped, worst quality, low quality, low score, bad score, average score, signature, watermark, username, blurry, 1girl, female, woman, breasts, skirt",
+        "diagnostics": {
+          "token_usage": {
+            "tokenizer_1": 52,
+            "tokenizer_2": 52,
+            "limit": 75
+          },
+          "negative_token_usage": {
+            "tokenizer_1": 58,
+            "tokenizer_2": 58,
+            "limit": 75
+          },
+          "omitted_segments": [],
+          "warnings": []
+        }
+      },
+      "generations": [
+        {
+          "seed": 94000,
+          "output": "outputs/release/01_school_idol_boy_seed-94000.png",
+          "request_id": "781455501a4b13d85ec16661",
+          "duration_ms": 11350,
+          "wall_duration_ms": 12186,
+          "prompt_used": "1boy, solo, male focus, masculine face, handsome male student, school blazer, safe, upper body, looking at viewer, beside classroom window, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+          "prompt_diagnostics": {
+            "token_usage": {
+              "tokenizer_1": 52,
+              "tokenizer_2": 52,
+              "limit": 75
+            },
+            "negative_token_usage": {
+              "tokenizer_1": 58,
+              "tokenizer_2": 58,
+              "limit": 75
+            },
+            "omitted_segments": [],
+            "warnings": []
+          },
+          "background_mode": "none",
+          "review": {
+            "status": "pending",
+            "observed": [],
+            "notes": ""
+          }
+        },
+        {
+          "seed": 94001,
+          "output": "outputs/release/01_school_idol_boy_seed-94001.png",
+          "request_id": "ffc8d5dbfeca2585d6a0d554",
+          "duration_ms": 10945,
+          "wall_duration_ms": 11757,
+          "prompt_used": "1boy, solo, male focus, masculine face, handsome male student, school blazer, safe, upper body, looking at viewer, beside classroom window, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+          "prompt_diagnostics": {
+            "token_usage": {
+              "tokenizer_1": 52,
+              "tokenizer_2": 52,
+              "limit": 75
+            },
+            "negative_token_usage": {
+              "tokenizer_1": 58,
+              "tokenizer_2": 58,
+              "limit": 75
+            },
+            "omitted_segments": [],
+            "warnings": []
+          },
+          "background_mode": "none",
+          "review": {
+            "status": "pending",
+            "observed": [],
+            "notes": ""
+          }
+        },
+        {
+          "seed": 94002,
+          "output": "outputs/release/01_school_idol_boy_seed-94002.png",
+          "request_id": "3fc5cfeb26ed40ea58478a42",
+          "duration_ms": 11593,
+          "wall_duration_ms": 12502,
+          "prompt_used": "1boy, solo, male focus, masculine face, handsome male student, school blazer, safe, upper body, looking at viewer, beside classroom window, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+          "prompt_diagnostics": {
+            "token_usage": {
+              "tokenizer_1": 52,
+              "tokenizer_2": 52,
+              "limit": 75
+            },
+            "negative_token_usage": {
+              "tokenizer_1": 58,
+              "tokenizer_2": 58,
+              "limit": 75
+            },
+            "omitted_segments": [],
+            "warnings": []
+          },
+          "background_mode": "none",
+          "review": {
+            "status": "pending",
+            "observed": [],
+            "notes": ""
+          }
+        }
+      ],
+      "review": {
+        "status": "pending",
+        "pass_count": null,
+        "observed": [],
+        "notes": ""
+      }
+    },
+    {
+      "id": "white_background",
+      "label": "纯白背景",
+      "selections": {
+        "baseStyle": "日系萌系",
+        "campusIdentity": "JK 制服女生",
+        "pose": "全身像",
+        "background": "纯白背景"
+      },
+      "description": "standing",
+      "expected": [
+        "恰好一名角色",
+        "从头到脚可见",
+        "无场景的纯白背景"
+      ],
+      "compiler": {
+        "prompt": "1girl, solo, japanese school uniform, safe, full body, wide shot, head-to-toe, feet visible, standing, white background, simple background, pure white background, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+        "prompt_segments": [
+          {
+            "id": "subject",
+            "label": "主体",
+            "text": "1girl, solo",
+            "slot": "subject",
+            "priority": 0,
+            "protected": true
+          },
+          {
+            "id": "selection:campusIdentity",
+            "label": "校园身份（人设） · JK 制服女生",
+            "text": "japanese school uniform",
+            "slot": "identity",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "rating",
+            "label": "内容分级",
+            "text": "safe",
+            "slot": "rating",
+            "priority": 0,
+            "protected": true
+          },
+          {
+            "id": "selection:pose",
+            "label": "基础姿态 · 全身像",
+            "text": "full body, wide shot, head-to-toe, feet visible",
+            "slot": "framing",
+            "priority": 0,
+            "protected": true
+          },
+          {
+            "id": "custom:0",
+            "label": "自定义 · standing",
+            "text": "standing",
+            "slot": "action",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "selection:background",
+            "label": "背景简化 · 纯白背景",
+            "text": "white background, simple background, pure white background",
+            "slot": "scene",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "selection:baseStyle",
+            "label": "基础画风 · 日系萌系",
+            "text": "anime style",
+            "slot": "style",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "quality-guard",
+            "label": "质量约束 · 五官正常",
+            "text": "symmetrical face, correct facial features",
+            "slot": "quality",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "quality-suffix",
+            "label": "模型质量尾缀",
+            "text": "masterpiece, high score, great score, absurdres",
+            "slot": "suffix",
+            "priority": 0,
+            "protected": true
+          }
+        ],
+        "warnings": [],
+        "negative_additions": [
+          "scenery",
+          "detailed background",
+          "colored background",
+          "gradient background",
+          "cast shadow",
+          "silhouette",
+          "close-up",
+          "out of frame"
+        ],
+        "negative_prompt": "lowres, bad anatomy, bad hands, text, error, missing finger, extra digits, fewer digits, cropped, worst quality, low quality, low score, bad score, average score, signature, watermark, username, blurry, scenery, detailed background, colored background, gradient background, cast shadow, silhouette, close-up, out of frame"
+      },
+      "inspection": {
+        "prompt": "1girl, solo, japanese school uniform, safe, full body, wide shot, head-to-toe, feet visible, standing, white background, simple background, pure white background, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+        "negative_prompt": "lowres, bad anatomy, bad hands, text, error, missing finger, extra digits, fewer digits, cropped, worst quality, low quality, low score, bad score, average score, signature, watermark, username, blurry, scenery, detailed background, colored background, gradient background, cast shadow, silhouette, close-up, out of frame",
+        "diagnostics": {
+          "token_usage": {
+            "tokenizer_1": 59,
+            "tokenizer_2": 59,
+            "limit": 75
+          },
+          "negative_token_usage": {
+            "tokenizer_1": 71,
+            "tokenizer_2": 71,
+            "limit": 75
+          },
+          "omitted_segments": [],
+          "warnings": []
+        }
+      },
+      "generations": [
+        {
+          "seed": 94003,
+          "output": "outputs/release/02_white_background_seed-94003.png",
+          "request_id": "ec9db9c13e97eb602ffd6517",
+          "duration_ms": 10712,
+          "wall_duration_ms": 11290,
+          "prompt_used": "1girl, solo, japanese school uniform, safe, full body, wide shot, head-to-toe, feet visible, standing, white background, simple background, pure white background, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+          "prompt_diagnostics": {
+            "token_usage": {
+              "tokenizer_1": 59,
+              "tokenizer_2": 59,
+              "limit": 75
+            },
+            "negative_token_usage": {
+              "tokenizer_1": 71,
+              "tokenizer_2": 71,
+              "limit": 75
+            },
+            "omitted_segments": [],
+            "warnings": []
+          },
+          "background_mode": "white",
+          "review": {
+            "status": "pending",
+            "observed": [],
+            "notes": ""
+          }
+        },
+        {
+          "seed": 94004,
+          "output": "outputs/release/02_white_background_seed-94004.png",
+          "request_id": "61e081e63d258e38a43f954d",
+          "duration_ms": 10693,
+          "wall_duration_ms": 10994,
+          "prompt_used": "1girl, solo, japanese school uniform, safe, full body, wide shot, head-to-toe, feet visible, standing, white background, simple background, pure white background, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+          "prompt_diagnostics": {
+            "token_usage": {
+              "tokenizer_1": 59,
+              "tokenizer_2": 59,
+              "limit": 75
+            },
+            "negative_token_usage": {
+              "tokenizer_1": 71,
+              "tokenizer_2": 71,
+              "limit": 75
+            },
+            "omitted_segments": [],
+            "warnings": []
+          },
+          "background_mode": "white",
+          "review": {
+            "status": "pending",
+            "observed": [],
+            "notes": ""
+          }
+        },
+        {
+          "seed": 94005,
+          "output": "outputs/release/02_white_background_seed-94005.png",
+          "request_id": "13e8034b217914c5354730aa",
+          "duration_ms": 10756,
+          "wall_duration_ms": 11081,
+          "prompt_used": "1girl, solo, japanese school uniform, safe, full body, wide shot, head-to-toe, feet visible, standing, white background, simple background, pure white background, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+          "prompt_diagnostics": {
+            "token_usage": {
+              "tokenizer_1": 59,
+              "tokenizer_2": 59,
+              "limit": 75
+            },
+            "negative_token_usage": {
+              "tokenizer_1": 71,
+              "tokenizer_2": 71,
+              "limit": 75
+            },
+            "omitted_segments": [],
+            "warnings": []
+          },
+          "background_mode": "white",
+          "review": {
+            "status": "pending",
+            "observed": [],
+            "notes": ""
+          }
+        }
+      ],
+      "review": {
+        "status": "pending",
+        "pass_count": null,
+        "observed": [],
+        "notes": ""
+      }
+    },
+    {
+      "id": "mixed_couple",
+      "label": "情侣双人",
+      "selections": {
+        "baseStyle": "日系萌系",
+        "specialSetting": "情侣头像（双人互动）",
+        "pose": "全身像",
+        "background": "纯白背景"
+      },
+      "description": "standing side by side, looking at viewer",
+      "expected": [
+        "恰好一名男生和一名女生",
+        "两人同时完整可见",
+        "并肩互动"
+      ],
+      "compiler": {
+        "prompt": "1boy, 1girl, couple interaction, matching profile picture, safe, full body, wide shot, head-to-toe, feet visible, standing side by side, looking at viewer, white background, simple background, pure white background, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+        "prompt_segments": [
+          {
+            "id": "subject",
+            "label": "主体",
+            "text": "1boy, 1girl",
+            "slot": "subject",
+            "priority": 0,
+            "protected": true
+          },
+          {
+            "id": "selection:specialSetting",
+            "label": "特殊设定 · 情侣头像（双人互动）",
+            "text": "couple interaction, matching profile picture",
+            "slot": "identity",
+            "priority": 0,
+            "protected": false
+          },
+          {
+            "id": "rating",
+            "label": "内容分级",
+            "text": "safe",
+            "slot": "rating",
+            "priority": 0,
+            "protected": true
+          },
+          {
+            "id": "selection:pose",
+            "label": "基础姿态 · 全身像",
+            "text": "full body, wide shot, head-to-toe, feet visible",
+            "slot": "framing",
+            "priority": 0,
+            "protected": true
+          },
+          {
+            "id": "custom:0",
+            "label": "自定义 · standing side by side",
+            "text": "standing side by side",
+            "slot": "action",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "custom:1",
+            "label": "自定义 · looking at viewer",
+            "text": "looking at viewer",
+            "slot": "action",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "selection:background",
+            "label": "背景简化 · 纯白背景",
+            "text": "white background, simple background, pure white background",
+            "slot": "scene",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "selection:baseStyle",
+            "label": "基础画风 · 日系萌系",
+            "text": "anime style",
+            "slot": "style",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "quality-guard",
+            "label": "质量约束 · 五官正常",
+            "text": "symmetrical face, correct facial features",
+            "slot": "quality",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "quality-suffix",
+            "label": "模型质量尾缀",
+            "text": "masterpiece, high score, great score, absurdres",
+            "slot": "suffix",
+            "priority": 0,
+            "protected": true
+          }
+        ],
+        "warnings": [],
+        "negative_additions": [
+          "scenery",
+          "detailed background",
+          "colored background",
+          "gradient background",
+          "cast shadow",
+          "silhouette",
+          "close-up",
+          "out of frame"
+        ],
+        "negative_prompt": "lowres, bad anatomy, bad hands, text, error, missing finger, extra digits, fewer digits, cropped, worst quality, low quality, low score, bad score, average score, signature, watermark, username, blurry, scenery, detailed background, colored background, gradient background, cast shadow, silhouette, close-up, out of frame"
+      },
+      "inspection": {
+        "prompt": "1boy, 1girl, couple interaction, matching profile picture, safe, full body, wide shot, head-to-toe, feet visible, standing side by side, looking at viewer, white background, simple background, pure white background, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+        "negative_prompt": "lowres, bad anatomy, bad hands, text, error, missing finger, extra digits, fewer digits, cropped, worst quality, low quality, low score, bad score, average score, signature, watermark, username, blurry, scenery, detailed background, colored background, gradient background, cast shadow, silhouette, close-up, out of frame",
+        "diagnostics": {
+          "token_usage": {
+            "tokenizer_1": 70,
+            "tokenizer_2": 70,
+            "limit": 75
+          },
+          "negative_token_usage": {
+            "tokenizer_1": 71,
+            "tokenizer_2": 71,
+            "limit": 75
+          },
+          "omitted_segments": [],
+          "warnings": []
+        }
+      },
+      "generations": [
+        {
+          "seed": 94006,
+          "output": "outputs/release/03_mixed_couple_seed-94006.png",
+          "request_id": "5fefb16417bfa65f99382f1b",
+          "duration_ms": 10558,
+          "wall_duration_ms": 11027,
+          "prompt_used": "1boy, 1girl, couple interaction, matching profile picture, safe, full body, wide shot, head-to-toe, feet visible, standing side by side, looking at viewer, white background, simple background, pure white background, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+          "prompt_diagnostics": {
+            "token_usage": {
+              "tokenizer_1": 70,
+              "tokenizer_2": 70,
+              "limit": 75
+            },
+            "negative_token_usage": {
+              "tokenizer_1": 71,
+              "tokenizer_2": 71,
+              "limit": 75
+            },
+            "omitted_segments": [],
+            "warnings": []
+          },
+          "background_mode": "white",
+          "review": {
+            "status": "pending",
+            "observed": [],
+            "notes": ""
+          }
+        },
+        {
+          "seed": 94007,
+          "output": "outputs/release/03_mixed_couple_seed-94007.png",
+          "request_id": "b2a6c88fe8a9530188a30bff",
+          "duration_ms": 10587,
+          "wall_duration_ms": 11105,
+          "prompt_used": "1boy, 1girl, couple interaction, matching profile picture, safe, full body, wide shot, head-to-toe, feet visible, standing side by side, looking at viewer, white background, simple background, pure white background, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+          "prompt_diagnostics": {
+            "token_usage": {
+              "tokenizer_1": 70,
+              "tokenizer_2": 70,
+              "limit": 75
+            },
+            "negative_token_usage": {
+              "tokenizer_1": 71,
+              "tokenizer_2": 71,
+              "limit": 75
+            },
+            "omitted_segments": [],
+            "warnings": []
+          },
+          "background_mode": "white",
+          "review": {
+            "status": "pending",
+            "observed": [],
+            "notes": ""
+          }
+        },
+        {
+          "seed": 94008,
+          "output": "outputs/release/03_mixed_couple_seed-94008.png",
+          "request_id": "8bb4cd3b39c9a61214429be8",
+          "duration_ms": 10688,
+          "wall_duration_ms": 11083,
+          "prompt_used": "1boy, 1girl, couple interaction, matching profile picture, safe, full body, wide shot, head-to-toe, feet visible, standing side by side, looking at viewer, white background, simple background, pure white background, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+          "prompt_diagnostics": {
+            "token_usage": {
+              "tokenizer_1": 70,
+              "tokenizer_2": 70,
+              "limit": 75
+            },
+            "negative_token_usage": {
+              "tokenizer_1": 71,
+              "tokenizer_2": 71,
+              "limit": 75
+            },
+            "omitted_segments": [],
+            "warnings": []
+          },
+          "background_mode": "white",
+          "review": {
+            "status": "pending",
+            "observed": [],
+            "notes": ""
+          }
+        }
+      ],
+      "review": {
+        "status": "pending",
+        "pass_count": null,
+        "observed": [],
+        "notes": ""
+      }
+    },
+    {
+      "id": "two_girls",
+      "label": "闺蜜双人",
+      "selections": {
+        "baseStyle": "日系萌系",
+        "specialSetting": "闺蜜头像（同款不同色）",
+        "pose": "全身像",
+        "background": "粉色背景"
+      },
+      "description": "looking at viewer",
+      "expected": [
+        "恰好两名女生",
+        "两人同时完整可见",
+        "同款不同色服装"
+      ],
+      "compiler": {
+        "prompt": "2girls, best friends, matching outfits, different colors, standing side by side, safe, full body, wide shot, head-to-toe, feet visible, looking at viewer, plain pink background, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+        "prompt_segments": [
+          {
+            "id": "subject",
+            "label": "主体",
+            "text": "2girls",
+            "slot": "subject",
+            "priority": 0,
+            "protected": true
+          },
+          {
+            "id": "selection:specialSetting",
+            "label": "特殊设定 · 闺蜜头像（同款不同色）",
+            "text": "best friends, matching outfits, different colors, standing side by side",
+            "slot": "identity",
+            "priority": 0,
+            "protected": false
+          },
+          {
+            "id": "rating",
+            "label": "内容分级",
+            "text": "safe",
+            "slot": "rating",
+            "priority": 0,
+            "protected": true
+          },
+          {
+            "id": "selection:pose",
+            "label": "基础姿态 · 全身像",
+            "text": "full body, wide shot, head-to-toe, feet visible",
+            "slot": "framing",
+            "priority": 0,
+            "protected": true
+          },
+          {
+            "id": "custom:0",
+            "label": "自定义 · looking at viewer",
+            "text": "looking at viewer",
+            "slot": "action",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "selection:background",
+            "label": "背景简化 · 粉色背景",
+            "text": "plain pink background",
+            "slot": "scene",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "selection:baseStyle",
+            "label": "基础画风 · 日系萌系",
+            "text": "anime style",
+            "slot": "style",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "quality-guard",
+            "label": "质量约束 · 五官正常",
+            "text": "symmetrical face, correct facial features",
+            "slot": "quality",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "quality-suffix",
+            "label": "模型质量尾缀",
+            "text": "masterpiece, high score, great score, absurdres",
+            "slot": "suffix",
+            "priority": 0,
+            "protected": true
+          }
+        ],
+        "warnings": [],
+        "negative_additions": [
+          "scenery",
+          "detailed background",
+          "close-up",
+          "out of frame"
+        ],
+        "negative_prompt": "lowres, bad anatomy, bad hands, text, error, missing finger, extra digits, fewer digits, cropped, worst quality, low quality, low score, bad score, average score, signature, watermark, username, blurry, scenery, detailed background, close-up, out of frame"
+      },
+      "inspection": {
+        "prompt": "2girls, best friends, matching outfits, different colors, standing side by side, safe, full body, wide shot, head-to-toe, feet visible, looking at viewer, plain pink background, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+        "negative_prompt": "lowres, bad anatomy, bad hands, text, error, missing finger, extra digits, fewer digits, cropped, worst quality, low quality, low score, bad score, average score, signature, watermark, username, blurry, scenery, detailed background, close-up, out of frame",
+        "diagnostics": {
+          "token_usage": {
+            "tokenizer_1": 63,
+            "tokenizer_2": 63,
+            "limit": 75
+          },
+          "negative_token_usage": {
+            "tokenizer_1": 60,
+            "tokenizer_2": 60,
+            "limit": 75
+          },
+          "omitted_segments": [],
+          "warnings": []
+        }
+      },
+      "generations": [
+        {
+          "seed": 94009,
+          "output": "outputs/release/04_two_girls_seed-94009.png",
+          "request_id": "5f39da53a35fbe698b80f8e5",
+          "duration_ms": 10318,
+          "wall_duration_ms": 10863,
+          "prompt_used": "2girls, best friends, matching outfits, different colors, standing side by side, safe, full body, wide shot, head-to-toe, feet visible, looking at viewer, plain pink background, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+          "prompt_diagnostics": {
+            "token_usage": {
+              "tokenizer_1": 63,
+              "tokenizer_2": 63,
+              "limit": 75
+            },
+            "negative_token_usage": {
+              "tokenizer_1": 60,
+              "tokenizer_2": 60,
+              "limit": 75
+            },
+            "omitted_segments": [],
+            "warnings": []
+          },
+          "background_mode": "none",
+          "review": {
+            "status": "pending",
+            "observed": [],
+            "notes": ""
+          }
+        },
+        {
+          "seed": 94010,
+          "output": "outputs/release/04_two_girls_seed-94010.png",
+          "request_id": "b6ba068d02971a9dab2df163",
+          "duration_ms": 9859,
+          "wall_duration_ms": 10487,
+          "prompt_used": "2girls, best friends, matching outfits, different colors, standing side by side, safe, full body, wide shot, head-to-toe, feet visible, looking at viewer, plain pink background, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+          "prompt_diagnostics": {
+            "token_usage": {
+              "tokenizer_1": 63,
+              "tokenizer_2": 63,
+              "limit": 75
+            },
+            "negative_token_usage": {
+              "tokenizer_1": 60,
+              "tokenizer_2": 60,
+              "limit": 75
+            },
+            "omitted_segments": [],
+            "warnings": []
+          },
+          "background_mode": "none",
+          "review": {
+            "status": "pending",
+            "observed": [],
+            "notes": ""
+          }
+        },
+        {
+          "seed": 94011,
+          "output": "outputs/release/04_two_girls_seed-94011.png",
+          "request_id": "84e4f8adc2c33c44b0888610",
+          "duration_ms": 9525,
+          "wall_duration_ms": 10032,
+          "prompt_used": "2girls, best friends, matching outfits, different colors, standing side by side, safe, full body, wide shot, head-to-toe, feet visible, looking at viewer, plain pink background, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+          "prompt_diagnostics": {
+            "token_usage": {
+              "tokenizer_1": 63,
+              "tokenizer_2": 63,
+              "limit": 75
+            },
+            "negative_token_usage": {
+              "tokenizer_1": 60,
+              "tokenizer_2": 60,
+              "limit": 75
+            },
+            "omitted_segments": [],
+            "warnings": []
+          },
+          "background_mode": "none",
+          "review": {
+            "status": "pending",
+            "observed": [],
+            "notes": ""
+          }
+        }
+      ],
+      "review": {
+        "status": "pending",
+        "pass_count": null,
+        "observed": [],
+        "notes": ""
+      }
+    },
+    {
+      "id": "full_body",
+      "label": "全身像",
+      "selections": {
+        "baseStyle": "日系萌系",
+        "campusIdentity": "JK 制服女生",
+        "pose": "全身像",
+        "background": "蓝色背景"
+      },
+      "description": "standing, looking at viewer",
+      "expected": [
+        "单人",
+        "从头到脚可见",
+        "四肢未被裁切"
+      ],
+      "compiler": {
+        "prompt": "1girl, solo, japanese school uniform, safe, full body, wide shot, head-to-toe, feet visible, standing, looking at viewer, plain blue background, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+        "prompt_segments": [
+          {
+            "id": "subject",
+            "label": "主体",
+            "text": "1girl, solo",
+            "slot": "subject",
+            "priority": 0,
+            "protected": true
+          },
+          {
+            "id": "selection:campusIdentity",
+            "label": "校园身份（人设） · JK 制服女生",
+            "text": "japanese school uniform",
+            "slot": "identity",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "rating",
+            "label": "内容分级",
+            "text": "safe",
+            "slot": "rating",
+            "priority": 0,
+            "protected": true
+          },
+          {
+            "id": "selection:pose",
+            "label": "基础姿态 · 全身像",
+            "text": "full body, wide shot, head-to-toe, feet visible",
+            "slot": "framing",
+            "priority": 0,
+            "protected": true
+          },
+          {
+            "id": "custom:0",
+            "label": "自定义 · standing",
+            "text": "standing",
+            "slot": "action",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "custom:1",
+            "label": "自定义 · looking at viewer",
+            "text": "looking at viewer",
+            "slot": "action",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "selection:background",
+            "label": "背景简化 · 蓝色背景",
+            "text": "plain blue background",
+            "slot": "scene",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "selection:baseStyle",
+            "label": "基础画风 · 日系萌系",
+            "text": "anime style",
+            "slot": "style",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "quality-guard",
+            "label": "质量约束 · 五官正常",
+            "text": "symmetrical face, correct facial features",
+            "slot": "quality",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "quality-suffix",
+            "label": "模型质量尾缀",
+            "text": "masterpiece, high score, great score, absurdres",
+            "slot": "suffix",
+            "priority": 0,
+            "protected": true
+          }
+        ],
+        "warnings": [],
+        "negative_additions": [
+          "scenery",
+          "detailed background",
+          "close-up",
+          "out of frame"
+        ],
+        "negative_prompt": "lowres, bad anatomy, bad hands, text, error, missing finger, extra digits, fewer digits, cropped, worst quality, low quality, low score, bad score, average score, signature, watermark, username, blurry, scenery, detailed background, close-up, out of frame"
+      },
+      "inspection": {
+        "prompt": "1girl, solo, japanese school uniform, safe, full body, wide shot, head-to-toe, feet visible, standing, looking at viewer, plain blue background, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+        "negative_prompt": "lowres, bad anatomy, bad hands, text, error, missing finger, extra digits, fewer digits, cropped, worst quality, low quality, low score, bad score, average score, signature, watermark, username, blurry, scenery, detailed background, close-up, out of frame",
+        "diagnostics": {
+          "token_usage": {
+            "tokenizer_1": 57,
+            "tokenizer_2": 57,
+            "limit": 75
+          },
+          "negative_token_usage": {
+            "tokenizer_1": 60,
+            "tokenizer_2": 60,
+            "limit": 75
+          },
+          "omitted_segments": [],
+          "warnings": []
+        }
+      },
+      "generations": [
+        {
+          "seed": 94012,
+          "output": "outputs/release/05_full_body_seed-94012.png",
+          "request_id": "56b20dff446e6ad9da6d5052",
+          "duration_ms": 12015,
+          "wall_duration_ms": 12457,
+          "prompt_used": "1girl, solo, japanese school uniform, safe, full body, wide shot, head-to-toe, feet visible, standing, looking at viewer, plain blue background, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+          "prompt_diagnostics": {
+            "token_usage": {
+              "tokenizer_1": 57,
+              "tokenizer_2": 57,
+              "limit": 75
+            },
+            "negative_token_usage": {
+              "tokenizer_1": 60,
+              "tokenizer_2": 60,
+              "limit": 75
+            },
+            "omitted_segments": [],
+            "warnings": []
+          },
+          "background_mode": "none",
+          "review": {
+            "status": "pending",
+            "observed": [],
+            "notes": ""
+          }
+        },
+        {
+          "seed": 94013,
+          "output": "outputs/release/05_full_body_seed-94013.png",
+          "request_id": "b7bfa199bcd46b45556ae685",
+          "duration_ms": 11426,
+          "wall_duration_ms": 11860,
+          "prompt_used": "1girl, solo, japanese school uniform, safe, full body, wide shot, head-to-toe, feet visible, standing, looking at viewer, plain blue background, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+          "prompt_diagnostics": {
+            "token_usage": {
+              "tokenizer_1": 57,
+              "tokenizer_2": 57,
+              "limit": 75
+            },
+            "negative_token_usage": {
+              "tokenizer_1": 60,
+              "tokenizer_2": 60,
+              "limit": 75
+            },
+            "omitted_segments": [],
+            "warnings": []
+          },
+          "background_mode": "none",
+          "review": {
+            "status": "pending",
+            "observed": [],
+            "notes": ""
+          }
+        },
+        {
+          "seed": 94014,
+          "output": "outputs/release/05_full_body_seed-94014.png",
+          "request_id": "add3a82f627642781d6427bd",
+          "duration_ms": 12600,
+          "wall_duration_ms": 13201,
+          "prompt_used": "1girl, solo, japanese school uniform, safe, full body, wide shot, head-to-toe, feet visible, standing, looking at viewer, plain blue background, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+          "prompt_diagnostics": {
+            "token_usage": {
+              "tokenizer_1": 57,
+              "tokenizer_2": 57,
+              "limit": 75
+            },
+            "negative_token_usage": {
+              "tokenizer_1": 60,
+              "tokenizer_2": 60,
+              "limit": 75
+            },
+            "omitted_segments": [],
+            "warnings": []
+          },
+          "background_mode": "none",
+          "review": {
+            "status": "pending",
+            "observed": [],
+            "notes": ""
+          }
+        }
+      ],
+      "review": {
+        "status": "pending",
+        "pass_count": null,
+        "observed": [],
+        "notes": ""
+      }
+    },
+    {
+      "id": "love_letter",
+      "label": "递情书",
+      "selections": {
+        "baseStyle": "日系萌系",
+        "campusIdentity": "JK 制服女生",
+        "pose": "全身像",
+        "interaction": "递情书",
+        "background": "纯白背景"
+      },
+      "description": "shy smile",
+      "expected": [
+        "人物完整",
+        "信封清晰可见",
+        "朝观看者递出信封"
+      ],
+      "compiler": {
+        "prompt": "1girl, solo, japanese school uniform, safe, full body, wide shot, head-to-toe, feet visible, outstretched hand, visible envelope, offering love letter to viewer, shy smile, white background, simple background, pure white background, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+        "prompt_segments": [
+          {
+            "id": "subject",
+            "label": "主体",
+            "text": "1girl, solo",
+            "slot": "subject",
+            "priority": 0,
+            "protected": true
+          },
+          {
+            "id": "selection:campusIdentity",
+            "label": "校园身份（人设） · JK 制服女生",
+            "text": "japanese school uniform",
+            "slot": "identity",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "rating",
+            "label": "内容分级",
+            "text": "safe",
+            "slot": "rating",
+            "priority": 0,
+            "protected": true
+          },
+          {
+            "id": "selection:pose",
+            "label": "基础姿态 · 全身像",
+            "text": "full body, wide shot, head-to-toe, feet visible",
+            "slot": "framing",
+            "priority": 0,
+            "protected": true
+          },
+          {
+            "id": "selection:interaction",
+            "label": "互动动作 · 递情书",
+            "text": "outstretched hand, visible envelope, offering love letter to viewer",
+            "slot": "action",
+            "priority": 0,
+            "protected": true
+          },
+          {
+            "id": "custom:0",
+            "label": "自定义 · shy smile",
+            "text": "shy smile",
+            "slot": "action",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "selection:background",
+            "label": "背景简化 · 纯白背景",
+            "text": "white background, simple background, pure white background",
+            "slot": "scene",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "selection:baseStyle",
+            "label": "基础画风 · 日系萌系",
+            "text": "anime style",
+            "slot": "style",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "quality-guard",
+            "label": "质量约束 · 五官正常",
+            "text": "symmetrical face, correct facial features",
+            "slot": "quality",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "quality-suffix",
+            "label": "模型质量尾缀",
+            "text": "masterpiece, high score, great score, absurdres",
+            "slot": "suffix",
+            "priority": 0,
+            "protected": true
+          }
+        ],
+        "warnings": [],
+        "negative_additions": [
+          "scenery",
+          "detailed background",
+          "colored background",
+          "gradient background",
+          "cast shadow",
+          "silhouette",
+          "close-up",
+          "out of frame"
+        ],
+        "negative_prompt": "lowres, bad anatomy, bad hands, text, error, missing finger, extra digits, fewer digits, cropped, worst quality, low quality, low score, bad score, average score, signature, watermark, username, blurry, scenery, detailed background, colored background, gradient background, cast shadow, silhouette, close-up, out of frame"
+      },
+      "inspection": {
+        "prompt": "1girl, solo, japanese school uniform, safe, full body, wide shot, head-to-toe, feet visible, outstretched hand, visible envelope, offering love letter to viewer, shy smile, white background, simple background, pure white background, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+        "negative_prompt": "lowres, bad anatomy, bad hands, text, error, missing finger, extra digits, fewer digits, cropped, worst quality, low quality, low score, bad score, average score, signature, watermark, username, blurry, scenery, detailed background, colored background, gradient background, cast shadow, silhouette, close-up, out of frame",
+        "diagnostics": {
+          "token_usage": {
+            "tokenizer_1": 73,
+            "tokenizer_2": 73,
+            "limit": 75
+          },
+          "negative_token_usage": {
+            "tokenizer_1": 71,
+            "tokenizer_2": 71,
+            "limit": 75
+          },
+          "omitted_segments": [],
+          "warnings": []
+        }
+      },
+      "generations": [
+        {
+          "seed": 94015,
+          "output": "outputs/release/06_love_letter_seed-94015.png",
+          "request_id": "f16a8556e984a1af15108435",
+          "duration_ms": 11334,
+          "wall_duration_ms": 11814,
+          "prompt_used": "1girl, solo, japanese school uniform, safe, full body, wide shot, head-to-toe, feet visible, outstretched hand, visible envelope, offering love letter to viewer, shy smile, white background, simple background, pure white background, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+          "prompt_diagnostics": {
+            "token_usage": {
+              "tokenizer_1": 73,
+              "tokenizer_2": 73,
+              "limit": 75
+            },
+            "negative_token_usage": {
+              "tokenizer_1": 71,
+              "tokenizer_2": 71,
+              "limit": 75
+            },
+            "omitted_segments": [],
+            "warnings": []
+          },
+          "background_mode": "white",
+          "review": {
+            "status": "pending",
+            "observed": [],
+            "notes": ""
+          }
+        },
+        {
+          "seed": 94016,
+          "output": "outputs/release/06_love_letter_seed-94016.png",
+          "request_id": "799d6ff85fa0ef40eec14269",
+          "duration_ms": 10825,
+          "wall_duration_ms": 11207,
+          "prompt_used": "1girl, solo, japanese school uniform, safe, full body, wide shot, head-to-toe, feet visible, outstretched hand, visible envelope, offering love letter to viewer, shy smile, white background, simple background, pure white background, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+          "prompt_diagnostics": {
+            "token_usage": {
+              "tokenizer_1": 73,
+              "tokenizer_2": 73,
+              "limit": 75
+            },
+            "negative_token_usage": {
+              "tokenizer_1": 71,
+              "tokenizer_2": 71,
+              "limit": 75
+            },
+            "omitted_segments": [],
+            "warnings": []
+          },
+          "background_mode": "white",
+          "review": {
+            "status": "pending",
+            "observed": [],
+            "notes": ""
+          }
+        },
+        {
+          "seed": 94017,
+          "output": "outputs/release/06_love_letter_seed-94017.png",
+          "request_id": "11ef705bb0e744e91efa3d42",
+          "duration_ms": 10799,
+          "wall_duration_ms": 11149,
+          "prompt_used": "1girl, solo, japanese school uniform, safe, full body, wide shot, head-to-toe, feet visible, outstretched hand, visible envelope, offering love letter to viewer, shy smile, white background, simple background, pure white background, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+          "prompt_diagnostics": {
+            "token_usage": {
+              "tokenizer_1": 73,
+              "tokenizer_2": 73,
+              "limit": 75
+            },
+            "negative_token_usage": {
+              "tokenizer_1": 71,
+              "tokenizer_2": 71,
+              "limit": 75
+            },
+            "omitted_segments": [],
+            "warnings": []
+          },
+          "background_mode": "white",
+          "review": {
+            "status": "pending",
+            "observed": [],
+            "notes": ""
+          }
+        }
+      ],
+      "review": {
+        "status": "pending",
+        "pass_count": null,
+        "observed": [],
+        "notes": ""
+      }
+    },
+    {
+      "id": "basketball",
+      "label": "打篮球",
+      "selections": {
+        "baseStyle": "日系萌系",
+        "campusIdentity": "篮球运动系",
+        "outfit": "运动校服",
+        "pose": "全身像",
+        "atmosphereAction": "打篮球",
+        "campusScene": "操场跑道"
+      },
+      "description": "looking ahead",
+      "expected": [
+        "人物完整",
+        "篮球清晰可见",
+        "明确的运球或打篮球动作"
+      ],
+      "compiler": {
+        "prompt": "1girl, solo, basketball player, safe, full body, wide shot, head-to-toe, feet visible, dribbling a basketball, visible basketball, playing basketball, dynamic pose, looking ahead, school tracksuit, school running track, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+        "prompt_segments": [
+          {
+            "id": "subject",
+            "label": "主体",
+            "text": "1girl, solo",
+            "slot": "subject",
+            "priority": 0,
+            "protected": true
+          },
+          {
+            "id": "selection:campusIdentity",
+            "label": "校园身份（人设） · 篮球运动系",
+            "text": "basketball player",
+            "slot": "identity",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "rating",
+            "label": "内容分级",
+            "text": "safe",
+            "slot": "rating",
+            "priority": 0,
+            "protected": true
+          },
+          {
+            "id": "selection:pose",
+            "label": "基础姿态 · 全身像",
+            "text": "full body, wide shot, head-to-toe, feet visible",
+            "slot": "framing",
+            "priority": 0,
+            "protected": true
+          },
+          {
+            "id": "selection:atmosphereAction",
+            "label": "氛围动作 · 打篮球",
+            "text": "dribbling a basketball, visible basketball, playing basketball, dynamic pose",
+            "slot": "action",
+            "priority": 0,
+            "protected": true
+          },
+          {
+            "id": "custom:0",
+            "label": "自定义 · looking ahead",
+            "text": "looking ahead",
+            "slot": "action",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "selection:outfit",
+            "label": "服装风格 · 运动校服",
+            "text": "school tracksuit",
+            "slot": "outfit",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "selection:campusScene",
+            "label": "校园场景 · 操场跑道",
+            "text": "school running track",
+            "slot": "scene",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "selection:baseStyle",
+            "label": "基础画风 · 日系萌系",
+            "text": "anime style",
+            "slot": "style",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "quality-guard",
+            "label": "质量约束 · 五官正常",
+            "text": "symmetrical face, correct facial features",
+            "slot": "quality",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "quality-suffix",
+            "label": "模型质量尾缀",
+            "text": "masterpiece, high score, great score, absurdres",
+            "slot": "suffix",
+            "priority": 0,
+            "protected": true
+          }
+        ],
+        "warnings": [],
+        "negative_additions": [
+          "close-up",
+          "out of frame"
+        ],
+        "negative_prompt": "lowres, bad anatomy, bad hands, text, error, missing finger, extra digits, fewer digits, cropped, worst quality, low quality, low score, bad score, average score, signature, watermark, username, blurry, close-up, out of frame"
+      },
+      "inspection": {
+        "prompt": "1girl, solo, basketball player, safe, full body, wide shot, head-to-toe, feet visible, dribbling a basketball, visible basketball, playing basketball, dynamic pose, looking ahead, school tracksuit, school running track, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+        "negative_prompt": "lowres, bad anatomy, bad hands, text, error, missing finger, extra digits, fewer digits, cropped, worst quality, low quality, low score, bad score, average score, signature, watermark, username, blurry, close-up, out of frame",
+        "diagnostics": {
+          "token_usage": {
+            "tokenizer_1": 72,
+            "tokenizer_2": 72,
+            "limit": 75
+          },
+          "negative_token_usage": {
+            "tokenizer_1": 55,
+            "tokenizer_2": 55,
+            "limit": 75
+          },
+          "omitted_segments": [],
+          "warnings": []
+        }
+      },
+      "generations": [
+        {
+          "seed": 94018,
+          "output": "outputs/release/07_basketball_seed-94018.png",
+          "request_id": "48080cd503fd3ac33bea61b6",
+          "duration_ms": 9971,
+          "wall_duration_ms": 10909,
+          "prompt_used": "1girl, solo, basketball player, safe, full body, wide shot, head-to-toe, feet visible, dribbling a basketball, visible basketball, playing basketball, dynamic pose, looking ahead, school tracksuit, school running track, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+          "prompt_diagnostics": {
+            "token_usage": {
+              "tokenizer_1": 72,
+              "tokenizer_2": 72,
+              "limit": 75
+            },
+            "negative_token_usage": {
+              "tokenizer_1": 55,
+              "tokenizer_2": 55,
+              "limit": 75
+            },
+            "omitted_segments": [],
+            "warnings": []
+          },
+          "background_mode": "none",
+          "review": {
+            "status": "pending",
+            "observed": [],
+            "notes": ""
+          }
+        },
+        {
+          "seed": 94019,
+          "output": "outputs/release/07_basketball_seed-94019.png",
+          "request_id": "8f37dfd5e02f91ace93d821a",
+          "duration_ms": 10295,
+          "wall_duration_ms": 11079,
+          "prompt_used": "1girl, solo, basketball player, safe, full body, wide shot, head-to-toe, feet visible, dribbling a basketball, visible basketball, playing basketball, dynamic pose, looking ahead, school tracksuit, school running track, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+          "prompt_diagnostics": {
+            "token_usage": {
+              "tokenizer_1": 72,
+              "tokenizer_2": 72,
+              "limit": 75
+            },
+            "negative_token_usage": {
+              "tokenizer_1": 55,
+              "tokenizer_2": 55,
+              "limit": 75
+            },
+            "omitted_segments": [],
+            "warnings": []
+          },
+          "background_mode": "none",
+          "review": {
+            "status": "pending",
+            "observed": [],
+            "notes": ""
+          }
+        },
+        {
+          "seed": 94020,
+          "output": "outputs/release/07_basketball_seed-94020.png",
+          "request_id": "8114970168244d079f73a370",
+          "duration_ms": 11282,
+          "wall_duration_ms": 11854,
+          "prompt_used": "1girl, solo, basketball player, safe, full body, wide shot, head-to-toe, feet visible, dribbling a basketball, visible basketball, playing basketball, dynamic pose, looking ahead, school tracksuit, school running track, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+          "prompt_diagnostics": {
+            "token_usage": {
+              "tokenizer_1": 72,
+              "tokenizer_2": 72,
+              "limit": 75
+            },
+            "negative_token_usage": {
+              "tokenizer_1": 55,
+              "tokenizer_2": 55,
+              "limit": 75
+            },
+            "omitted_segments": [],
+            "warnings": []
+          },
+          "background_mode": "none",
+          "review": {
+            "status": "pending",
+            "observed": [],
+            "notes": ""
+          }
+        }
+      ],
+      "review": {
+        "status": "pending",
+        "pass_count": null,
+        "observed": [],
+        "notes": ""
+      }
+    },
+    {
+      "id": "circular_crop",
+      "label": "圆形裁剪兼容",
+      "selections": {
+        "baseStyle": "日系萌系",
+        "campusIdentity": "JK 制服女生",
+        "pose": "半身像",
+        "background": "纯白背景",
+        "format": "圆形裁剪兼容"
+      },
+      "description": "looking at viewer",
+      "expected": [
+        "正面居中",
+        "头肩完整",
+        "四周有圆形裁剪安全边距"
+      ],
+      "compiler": {
+        "prompt": "1girl, solo, japanese school uniform, safe, full body, wide shot, front view, centered subject, head-to-toe, feet visible, circular crop safe, looking at viewer, white background, simple background, pure white background, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+        "prompt_segments": [
+          {
+            "id": "subject",
+            "label": "主体",
+            "text": "1girl, solo",
+            "slot": "subject",
+            "priority": 0,
+            "protected": true
+          },
+          {
+            "id": "selection:campusIdentity",
+            "label": "校园身份（人设） · JK 制服女生",
+            "text": "japanese school uniform",
+            "slot": "identity",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "rating",
+            "label": "内容分级",
+            "text": "safe",
+            "slot": "rating",
+            "priority": 0,
+            "protected": true
+          },
+          {
+            "id": "selection:format",
+            "label": "尺寸适配 · 圆形裁剪兼容",
+            "text": "full body, wide shot, front view, centered subject, head-to-toe, feet visible, circular crop safe",
+            "slot": "framing",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "custom:0",
+            "label": "自定义 · looking at viewer",
+            "text": "looking at viewer",
+            "slot": "action",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "selection:background",
+            "label": "背景简化 · 纯白背景",
+            "text": "white background, simple background, pure white background",
+            "slot": "scene",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "selection:baseStyle",
+            "label": "基础画风 · 日系萌系",
+            "text": "anime style",
+            "slot": "style",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "quality-guard",
+            "label": "质量约束 · 五官正常",
+            "text": "symmetrical face, correct facial features",
+            "slot": "quality",
+            "priority": 1,
+            "protected": false
+          },
+          {
+            "id": "quality-suffix",
+            "label": "模型质量尾缀",
+            "text": "masterpiece, high score, great score, absurdres",
+            "slot": "suffix",
+            "priority": 0,
+            "protected": true
+          }
+        ],
+        "warnings": [
+          "“半身像”与圆形裁剪安全构图冲突，未写入本次模型提示词。"
+        ],
+        "negative_additions": [
+          "scenery",
+          "detailed background",
+          "colored background",
+          "gradient background",
+          "cast shadow",
+          "silhouette",
+          "close-up",
+          "out of frame"
+        ],
+        "negative_prompt": "lowres, bad anatomy, bad hands, text, error, missing finger, extra digits, fewer digits, cropped, worst quality, low quality, low score, bad score, average score, signature, watermark, username, blurry, scenery, detailed background, colored background, gradient background, cast shadow, silhouette, close-up, out of frame"
+      },
+      "inspection": {
+        "prompt": "1girl, solo, japanese school uniform, safe, full body, wide shot, front view, centered subject, head-to-toe, feet visible, circular crop safe, looking at viewer, white background, simple background, pure white background, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+        "negative_prompt": "lowres, bad anatomy, bad hands, text, error, missing finger, extra digits, fewer digits, cropped, worst quality, low quality, low score, bad score, average score, signature, watermark, username, blurry, scenery, detailed background, colored background, gradient background, cast shadow, silhouette, close-up, out of frame",
+        "diagnostics": {
+          "token_usage": {
+            "tokenizer_1": 71,
+            "tokenizer_2": 71,
+            "limit": 75
+          },
+          "negative_token_usage": {
+            "tokenizer_1": 71,
+            "tokenizer_2": 71,
+            "limit": 75
+          },
+          "omitted_segments": [],
+          "warnings": []
+        }
+      },
+      "generations": [
+        {
+          "seed": 94021,
+          "output": "outputs/release/08_circular_crop_seed-94021.png",
+          "request_id": "339a718434bc8a36beec1cf2",
+          "duration_ms": 10739,
+          "wall_duration_ms": 11047,
+          "prompt_used": "1girl, solo, japanese school uniform, safe, full body, wide shot, front view, centered subject, head-to-toe, feet visible, circular crop safe, looking at viewer, white background, simple background, pure white background, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+          "prompt_diagnostics": {
+            "token_usage": {
+              "tokenizer_1": 71,
+              "tokenizer_2": 71,
+              "limit": 75
+            },
+            "negative_token_usage": {
+              "tokenizer_1": 71,
+              "tokenizer_2": 71,
+              "limit": 75
+            },
+            "omitted_segments": [],
+            "warnings": []
+          },
+          "background_mode": "white",
+          "review": {
+            "status": "pending",
+            "observed": [],
+            "notes": ""
+          }
+        },
+        {
+          "seed": 94022,
+          "output": "outputs/release/08_circular_crop_seed-94022.png",
+          "request_id": "6f24b963cad6d535646aade7",
+          "duration_ms": 10789,
+          "wall_duration_ms": 11108,
+          "prompt_used": "1girl, solo, japanese school uniform, safe, full body, wide shot, front view, centered subject, head-to-toe, feet visible, circular crop safe, looking at viewer, white background, simple background, pure white background, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+          "prompt_diagnostics": {
+            "token_usage": {
+              "tokenizer_1": 71,
+              "tokenizer_2": 71,
+              "limit": 75
+            },
+            "negative_token_usage": {
+              "tokenizer_1": 71,
+              "tokenizer_2": 71,
+              "limit": 75
+            },
+            "omitted_segments": [],
+            "warnings": []
+          },
+          "background_mode": "white",
+          "review": {
+            "status": "pending",
+            "observed": [],
+            "notes": ""
+          }
+        },
+        {
+          "seed": 94023,
+          "output": "outputs/release/08_circular_crop_seed-94023.png",
+          "request_id": "e9c41c2b54e9c72e5fa641cf",
+          "duration_ms": 10759,
+          "wall_duration_ms": 11226,
+          "prompt_used": "1girl, solo, japanese school uniform, safe, full body, wide shot, front view, centered subject, head-to-toe, feet visible, circular crop safe, looking at viewer, white background, simple background, pure white background, anime style, symmetrical face, correct facial features, masterpiece, high score, great score, absurdres",
+          "prompt_diagnostics": {
+            "token_usage": {
+              "tokenizer_1": 71,
+              "tokenizer_2": 71,
+              "limit": 75
+            },
+            "negative_token_usage": {
+              "tokenizer_1": 71,
+              "tokenizer_2": 71,
+              "limit": 75
+            },
+            "omitted_segments": [],
+            "warnings": []
+          },
+          "background_mode": "white",
+          "review": {
+            "status": "pending",
+            "observed": [],
+            "notes": ""
+          }
+        }
+      ],
+      "review": {
+        "status": "pending",
+        "pass_count": null,
+        "observed": [],
+        "notes": ""
+      }
+    }
+  ]
+}

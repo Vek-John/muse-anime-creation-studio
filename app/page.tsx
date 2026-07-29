@@ -1,16 +1,24 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { DEFAULT_NEGATIVE_PROMPT } from "./prompt-tags";
 import {
-  DEFAULT_NEGATIVE_PROMPT,
-  QUALITY_PREFIX,
-  toModelPrompt,
-} from "./prompt-tags";
+  compilePrompt,
+  mergeNegativePrompt,
+  orderedSelectionEntries,
+  PromptSegment,
+  resolveSelectionChange,
+} from "./prompt-compiler";
 import {
   ConnectionStatus,
   RuntimePanel,
 } from "./runtime-panel";
-import { DEFAULT_SELECTIONS, PARAMETER_GROUPS } from "./studio-config";
+import {
+  DEFAULT_QUALITY_GUARD,
+  DEFAULT_SELECTIONS,
+  PARAMETER_GROUPS,
+  QUALITY_GUARD_OPTIONS,
+} from "./studio-config";
 
 const FIELD_LABELS = Object.fromEntries(
   PARAMETER_GROUPS.flatMap((group) =>
@@ -33,6 +41,32 @@ const SAMPLERS = [
 ];
 
 type GenerationStatus = "idle" | "generating" | "ready" | "error";
+type InspectionStatus = "idle" | "checking" | "ready" | "error";
+
+type TokenUsage = {
+  tokenizer_1: number;
+  tokenizer_2: number;
+  limit: number;
+};
+
+type PromptDiagnostics = {
+  token_usage: TokenUsage;
+  negative_token_usage?: TokenUsage;
+  omitted_segments: PromptSegment[];
+  warnings: string[];
+};
+
+type PromptInspection = {
+  prompt: string;
+  negative_prompt: string;
+  diagnostics: PromptDiagnostics;
+};
+
+type PromptInspectionState = PromptInspection & {
+  sourcePrompt: string;
+  sourceNegativePrompt: string;
+  sourceGatewayUrl: string;
+};
 
 type GenerationResult = {
   request_id: string;
@@ -46,6 +80,9 @@ type GenerationResult = {
   guidance_scale: number;
   sampler: string;
   duration_ms: number;
+  prompt_used?: string;
+  prompt_diagnostics?: PromptDiagnostics;
+  background_mode?: "none" | "white";
 };
 
 function normalizeApiUrl(value: string) {
@@ -84,28 +121,74 @@ export default function Home() {
   const [steps, setSteps] = useState(28);
   const [guidanceScale, setGuidanceScale] = useState(5);
   const [seed, setSeed] = useState(-1);
-  const [sampler, setSampler] = useState("dpmpp_2m_karras");
+  const [sampler, setSampler] = useState("euler_a");
   const [clipSkip, setClipSkip] = useState(2);
+  const [qualityGuard, setQualityGuard] = useState(DEFAULT_QUALITY_GUARD);
+  const [selectionNotice, setSelectionNotice] = useState("");
+  const [inspection, setInspection] =
+    useState<PromptInspectionState | null>(null);
+  const [inspectionStatus, setInspectionStatus] =
+    useState<InspectionStatus>("idle");
+  const [inspectionError, setInspectionError] = useState("");
 
   const selectedEntries = useMemo(
-    () => Object.entries(selections).filter(([, value]) => Boolean(value)),
+    () => orderedSelectionEntries(selections),
     [selections],
   );
 
-  const combinedPrompt = useMemo(() => {
-    const parameterText = selectedEntries
-      .map(([, value]) => toModelPrompt(value))
-      .filter(Boolean)
-      .join(", ");
-    return [QUALITY_PREFIX, description.trim(), parameterText]
-      .filter(Boolean)
-      .join(", ");
-  }, [description, selectedEntries]);
+  const compiled = useMemo(
+    () =>
+      compilePrompt({
+        selections,
+        description,
+        qualityGuard,
+      }),
+    [description, qualityGuard, selections],
+  );
+
+  const effectiveNegativePrompt = useMemo(
+    () => mergeNegativePrompt(negativePrompt, compiled.negativeAdditions),
+    [compiled.negativeAdditions, negativePrompt],
+  );
+
+  const normalizedGatewayUrl = normalizeApiUrl(gatewayUrl);
+  const currentInspection =
+    connection === "connected" &&
+    inspection?.sourcePrompt === compiled.prompt &&
+    inspection.sourceNegativePrompt === effectiveNegativePrompt &&
+    inspection.sourceGatewayUrl === normalizedGatewayUrl
+      ? inspection
+      : null;
+  const visibleInspectionStatus: InspectionStatus =
+    connection !== "connected"
+      ? "idle"
+      : currentInspection
+        ? "ready"
+        : inspectionStatus === "error"
+          ? "error"
+          : "checking";
+  const effectivePrompt = currentInspection?.prompt ?? compiled.prompt;
+  const effectiveDiagnostics = currentInspection?.diagnostics ?? null;
+  const tokenCount = effectiveDiagnostics
+    ? Math.max(
+        effectiveDiagnostics.token_usage.tokenizer_1,
+        effectiveDiagnostics.token_usage.tokenizer_2,
+      )
+    : null;
+  const negativeTokenCount = effectiveDiagnostics?.negative_token_usage
+    ? Math.max(
+        effectiveDiagnostics.negative_token_usage.tokenizer_1,
+        effectiveDiagnostics.negative_token_usage.tokenizer_2,
+      )
+    : null;
+  const backgroundMode =
+    selections.background === "纯白背景" ? "white" : "none";
 
   const payload = useMemo(
     () => ({
-      prompt: combinedPrompt,
-      negative_prompt: negativePrompt,
+      prompt: compiled.prompt,
+      prompt_segments: compiled.segments,
+      negative_prompt: effectiveNegativePrompt,
       width,
       height,
       steps,
@@ -113,13 +196,16 @@ export default function Home() {
       seed,
       sampler,
       clip_skip: clipSkip,
+      background_mode: backgroundMode,
     }),
     [
+      backgroundMode,
       clipSkip,
-      combinedPrompt,
+      compiled.prompt,
+      compiled.segments,
+      effectiveNegativePrompt,
       guidanceScale,
       height,
-      negativePrompt,
       sampler,
       seed,
       steps,
@@ -127,14 +213,71 @@ export default function Home() {
     ],
   );
 
+  useEffect(() => {
+    if (connection !== "connected" || !compiled.prompt) {
+      return;
+    }
+
+    const controller = new AbortController();
+    const timer = window.setTimeout(async () => {
+      setInspectionStatus("checking");
+      setInspectionError("");
+      try {
+        const response = await fetch(
+          `${normalizeApiUrl(gatewayUrl)}/v1/prompt/inspect`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              prompt: compiled.prompt,
+              prompt_segments: compiled.segments,
+              negative_prompt: effectiveNegativePrompt,
+            }),
+            signal: controller.signal,
+          },
+        );
+        const body = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(body.detail || `提示词检查失败（${response.status}）`);
+        }
+        setInspection({
+          ...(body as PromptInspection),
+          sourcePrompt: compiled.prompt,
+          sourceNegativePrompt: effectiveNegativePrompt,
+          sourceGatewayUrl: normalizeApiUrl(gatewayUrl),
+        });
+        setInspectionStatus("ready");
+      } catch (error) {
+        if (error instanceof Error && error.name === "AbortError") return;
+        setInspection(null);
+        setInspectionStatus("error");
+        setInspectionError(
+          error instanceof Error ? error.message : "提示词检查失败",
+        );
+      }
+    }, 350);
+
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [
+    compiled.prompt,
+    compiled.segments,
+    connection,
+    effectiveNegativePrompt,
+    gatewayUrl,
+  ]);
+
   function updateSelection(fieldId: string, value: string) {
-    setSelections((current) => ({
-      ...current,
-      [fieldId]: value,
-    }));
-    if (fieldId === "sampling" && value === "20 步采样") setSteps(20);
-    if (fieldId === "sampling" && value === "CFG = 5（黄金组合）") {
-      setGuidanceScale(5);
+    setSelections((current) => {
+      const resolved = resolveSelectionChange(current, fieldId, value);
+      setSelectionNotice(resolved.notices.join(" "));
+      return resolved.selections;
+    });
+    if (fieldId === "format" && value) {
+      setWidth(1024);
+      setHeight(1024);
     }
     setStatus("idle");
   }
@@ -145,6 +288,7 @@ export default function Home() {
       delete next[fieldId];
       return next;
     });
+    setSelectionNotice("");
     setStatus("idle");
   }
 
@@ -152,21 +296,37 @@ export default function Home() {
     setSelections(DEFAULT_SELECTIONS);
     setDescription("");
     setNegativePrompt(DEFAULT_NEGATIVE_PROMPT);
+    setQualityGuard(DEFAULT_QUALITY_GUARD);
+    setSelectionNotice("");
+    setInspection(null);
+    setWidth(1024);
+    setHeight(1024);
+    setSteps(28);
+    setGuidanceScale(5);
+    setSeed(-1);
+    setSampler("euler_a");
+    setClipSkip(2);
     setStatus("idle");
     setResult(null);
     setErrorMessage("");
   }
 
   async function copyPrompt() {
-    if (!combinedPrompt) return;
-    await navigator.clipboard.writeText(combinedPrompt);
+    if (!effectivePrompt) return;
+    await navigator.clipboard.writeText(effectivePrompt);
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1600);
   }
 
   async function handleGenerate() {
     const baseUrl = normalizeApiUrl(gatewayUrl);
-    if (!combinedPrompt || status === "generating") return;
+    if (
+      !compiled.prompt ||
+      status === "generating" ||
+      visibleInspectionStatus === "error"
+    ) {
+      return;
+    }
     if (!baseUrl) {
       setStatus("error");
       setErrorMessage("请先启动本机 Runtime Gateway");
@@ -191,7 +351,19 @@ export default function Home() {
       if (!response.ok) {
         throw new Error(body.detail || `生成失败（${response.status}）`);
       }
-      setResult(body as GenerationResult);
+      const generationResult = body as GenerationResult;
+      setResult(generationResult);
+      if (generationResult.prompt_used && generationResult.prompt_diagnostics) {
+        setInspection({
+          prompt: generationResult.prompt_used,
+          negative_prompt: effectiveNegativePrompt,
+          diagnostics: generationResult.prompt_diagnostics,
+          sourcePrompt: compiled.prompt,
+          sourceNegativePrompt: effectiveNegativePrompt,
+          sourceGatewayUrl: normalizeApiUrl(gatewayUrl),
+        });
+        setInspectionStatus("ready");
+      }
       setSeed(body.seed);
       setStatus("ready");
       setConnection("connected");
@@ -220,6 +392,37 @@ export default function Home() {
   function applySizePreset(preset: (typeof SIZE_PRESETS)[number]) {
     setWidth(preset.width);
     setHeight(preset.height);
+    if (preset.width !== preset.height) {
+      setSelections((current) => {
+        if (!current.format) return current;
+        const next = { ...current };
+        delete next.format;
+        setSelectionNotice(
+          "已移除头像裁剪适配：当前画布不是正方形。",
+        );
+        return next;
+      });
+    }
+    setStatus("idle");
+  }
+
+  function updateCanvasDimension(
+    nextWidth: number,
+    nextHeight: number,
+  ) {
+    setWidth(nextWidth);
+    setHeight(nextHeight);
+    if (nextWidth !== nextHeight) {
+      setSelections((current) => {
+        if (!current.format) return current;
+        const next = { ...current };
+        delete next.format;
+        setSelectionNotice(
+          "已移除头像裁剪适配：当前画布不是正方形。",
+        );
+        return next;
+      });
+    }
     setStatus("idle");
   }
 
@@ -334,10 +537,19 @@ export default function Home() {
                 gatewayUrl={gatewayUrl}
                 connection={connection}
                 connectionMessage={connectionMessage}
-                onGatewayUrlChange={setGatewayUrl}
+                onGatewayUrlChange={(value) => {
+                  setGatewayUrl(value);
+                  setInspectionStatus("idle");
+                  setInspectionError("");
+                }}
                 onConnectionChange={(nextStatus, message) => {
                   setConnection(nextStatus);
                   setConnectionMessage(message);
+                  if (nextStatus !== "connected") {
+                    setInspection(null);
+                    setInspectionStatus("idle");
+                    setInspectionError("");
+                  }
                 }}
               />
             </details>
@@ -429,12 +641,41 @@ export default function Home() {
                   <p>还没有选择参数</p>
                 )}
               </div>
+              {selectionNotice && (
+                <p className="selection-notice" role="status">
+                  {selectionNotice}
+                </p>
+              )}
             </div>
 
             <div className="prompt-box">
               <div className="prompt-heading">
                 <label htmlFor="prompt-input">模型提示词</label>
-                <span>{description.length} / 1000</span>
+                <span
+                  className={`token-meter token-${visibleInspectionStatus}`}
+                  data-testid="token-meter"
+                  title={
+                    effectiveDiagnostics
+                      ? `正向分词器 1：${effectiveDiagnostics.token_usage.tokenizer_1}；正向分词器 2：${effectiveDiagnostics.token_usage.tokenizer_2}${
+                          effectiveDiagnostics.negative_token_usage
+                            ? `；负向分词器 1：${effectiveDiagnostics.negative_token_usage.tokenizer_1}；负向分词器 2：${effectiveDiagnostics.negative_token_usage.tokenizer_2}`
+                            : ""
+                        }`
+                      : inspectionError
+                  }
+                >
+                  {visibleInspectionStatus === "checking"
+                    ? "TOKEN 计算中"
+                    : visibleInspectionStatus === "ready" &&
+                        tokenCount !== null &&
+                        effectiveDiagnostics
+                      ? negativeTokenCount !== null
+                        ? `正 ${tokenCount} · 负 ${negativeTokenCount} / ${effectiveDiagnostics.token_usage.limit}`
+                        : `${tokenCount} / ${effectiveDiagnostics.token_usage.limit} TOKENS`
+                      : visibleInspectionStatus === "error"
+                        ? "TOKEN 检查失败"
+                        : "连接 GPU 后计算 TOKENS"}
+                </span>
               </div>
               <textarea
                 id="prompt-input"
@@ -474,7 +715,12 @@ export default function Home() {
                       max={1536}
                       step={64}
                       value={width}
-                      onChange={(event) => setWidth(Number(event.target.value))}
+                      onChange={(event) =>
+                        updateCanvasDimension(
+                          Number(event.target.value),
+                          height,
+                        )
+                      }
                     />
                   </label>
                   <label>
@@ -485,7 +731,12 @@ export default function Home() {
                       max={1536}
                       step={64}
                       value={height}
-                      onChange={(event) => setHeight(Number(event.target.value))}
+                      onChange={(event) =>
+                        updateCanvasDimension(
+                          width,
+                          Number(event.target.value),
+                        )
+                      }
                     />
                   </label>
                   <label>
@@ -548,6 +799,23 @@ export default function Home() {
                       ))}
                     </select>
                   </label>
+                  <label className="wide-control">
+                    <span>质量约束</span>
+                    <select
+                      value={qualityGuard}
+                      onChange={(event) => {
+                        setQualityGuard(event.target.value);
+                        setStatus("idle");
+                      }}
+                    >
+                      <option value="">暂不设置</option>
+                      {QUALITY_GUARD_OPTIONS.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
                 </div>
               </details>
 
@@ -555,22 +823,58 @@ export default function Home() {
                 <summary>负面提示词</summary>
                 <textarea
                   value={negativePrompt}
-                  onChange={(event) => setNegativePrompt(event.target.value)}
+                  onChange={(event) => {
+                    setNegativePrompt(event.target.value);
+                    setStatus("idle");
+                  }}
                   aria-label="负面提示词"
                 />
+                {compiled.negativeAdditions.length > 0 && (
+                  <p className="negative-additions">
+                    已按当前选择自动补充：
+                    {compiled.negativeAdditions.join(", ")}
+                  </p>
+                )}
               </details>
 
               <div className="compiled-prompt">
                 <span>COMPILED MODEL PROMPT</span>
                 <p>
-                  {combinedPrompt || "选择参数或输入描述后，将在这里组合提示词。"}
+                  {effectivePrompt ||
+                    "选择参数或输入描述后，将在这里组合提示词。"}
                 </p>
               </div>
+              {(compiled.warnings.length > 0 ||
+                effectiveDiagnostics?.warnings.length ||
+                inspectionError) && (
+                <div className="prompt-diagnostics" role="status">
+                  {[...compiled.warnings, ...(effectiveDiagnostics?.warnings ?? [])]
+                    .filter(
+                      (warning, index, items) =>
+                        items.indexOf(warning) === index,
+                    )
+                    .map((warning) => (
+                      <p key={warning}>{warning}</p>
+                    ))}
+                  {inspectionError && <p>{inspectionError}</p>}
+                </div>
+              )}
+              {effectiveDiagnostics &&
+                effectiveDiagnostics.omitted_segments.length > 0 && (
+                  <div className="omitted-tags">
+                    <strong>为满足 token 上限，本次自动省略</strong>
+                    <span>
+                      {effectiveDiagnostics.omitted_segments
+                        .map((segment) => segment.label)
+                        .join("、")}
+                    </span>
+                  </div>
+                )}
               <div className="prompt-actions">
                 <button
                   className="copy-button"
                   type="button"
-                  disabled={!combinedPrompt}
+                  disabled={!effectivePrompt}
                   onClick={copyPrompt}
                 >
                   {copied ? "已复制" : "复制提示词"}
@@ -578,7 +882,12 @@ export default function Home() {
                 <button
                   className="generate-button"
                   type="button"
-                  disabled={!combinedPrompt || status === "generating"}
+                  disabled={
+                    !compiled.prompt ||
+                    status === "generating" ||
+                    visibleInspectionStatus === "checking" ||
+                    visibleInspectionStatus === "error"
+                  }
                   onClick={handleGenerate}
                 >
                   <span>{status === "generating" ? "生成中" : "调用 GPU 生成"}</span>

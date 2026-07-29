@@ -1,0 +1,81 @@
+{
+  "auditedAt": "2026-07-28",
+  "model": "cagliostrolab/animagine-xl-4.0",
+  "snapshotRevision": "2b7c1b397761bf5bd3cc42e5b39ec99314a75a96",
+  "method": "Loaded both tokenizers directly from the active cloud model snapshot with transformers AutoTokenizer; no model or tokenizer assets were copied to the local machine.",
+  "tokenizers": {
+    "tokenizer": {
+      "modelMaxLength": 77,
+      "effectiveContentLimit": 75
+    },
+    "tokenizer_2": {
+      "modelMaxLength": 77,
+      "effectiveContentLimit": 75
+    }
+  },
+  "promptCases": {
+    "currentDefault": {
+      "totalTokens": 69,
+      "contentTokens": 67,
+      "overflowContentTokens": 0,
+      "remainingContentTokens": 8,
+      "conclusion": "The current default fits, but only eight content tokens remain."
+    },
+    "oneOptionFromEveryField": {
+      "totalTokens": 160,
+      "contentTokens": 158,
+      "overflowContentTokens": 83,
+      "visibleTailAfterTruncation": "1 boy and 1 girl, couple interaction, matching profile picture, me",
+      "conclusion": "More than half of the selected content is silently outside the model context."
+    },
+    "sameLongPromptFullBodyEarly": {
+      "totalTokens": 124,
+      "contentTokens": 122,
+      "overflowContentTokens": 47,
+      "fullBodyVisibleAfterTruncation": true,
+      "visibleTailAfterTruncation": "soft backlight"
+    },
+    "sameLongPromptFullBodyLate": {
+      "totalTokens": 124,
+      "contentTokens": 122,
+      "overflowContentTokens": 47,
+      "fullBodyVisibleAfterTruncation": false,
+      "visibleTailAfterTruncation": "cinematic atmosphere"
+    }
+  },
+  "longMappingExamples": [
+    {
+      "prompt": "1boy and 1girl, couple interaction, matching profile picture",
+      "contentTokens": 12
+    },
+    {
+      "prompt": "painterly, semi-realistic, thick painting",
+      "contentTokens": 10
+    },
+    {
+      "prompt": "ancient chinese fantasy, xianxia, elegant",
+      "contentTokens": 9
+    },
+    {
+      "prompt": "taisho era fantasy, dramatic anime lighting",
+      "contentTokens": 8
+    },
+    {
+      "prompt": "adventure manga aesthetic, expressive linework",
+      "contentTokens": 7
+    }
+  ],
+  "observedImageEvidence": {
+    "seed": 91003,
+    "earlyImage": "outputs/27_compare_fullbody_early.png",
+    "lateImage": "outputs/28_compare_fullbody_late.png",
+    "observation": "With identical semantic tags and seed, the early version shows the complete figure and shoes; the late version crops the subject above the knees."
+  },
+  "currentProductHandling": {
+    "frontendCounter": "Character count only (for example 84 / 1000), not model token count.",
+    "backendGuard": false,
+    "overflowWarning": false,
+    "priorityPreservation": false,
+    "longPromptEmbeddings": false
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "testedAt": "2026-07-28",
+  "url": "http://localhost:3000/",
+  "browser": "Codex in-app browser",
+  "runtime": "AutoDL cloud GPU through local gateway",
+  "tests": [
+    {
+      "id": "gateway_status",
+      "status": "pass",
+      "observed": "The status check changed the runtime badge to GPU 已连接."
+    },
+    {
+      "id": "scene_conflict_reproduction",
+      "status": "product_issue",
+      "inputs": ["教室窗边", "异世界森林", "纯白背景"],
+      "observedPromptTail": "beside classroom window, fantasy forest, plain white background",
+      "conclusion": "All three contradictory choices are accepted and compiled."
+    },
+    {
+      "id": "selection_order_drift",
+      "status": "product_issue",
+      "steps": ["Remove 半身像", "Select 全身像"],
+      "observedPromptTail": "correct facial features, full body",
+      "conclusion": "Deleting and re-selecting a field moves it to the end because object insertion order controls prompt order."
+    },
+    {
+      "id": "sampling_steps_link",
+      "status": "pass_with_design_issue",
+      "input": "20 步采样",
+      "observed": "The numeric step input changed to 20 and a selected-tag chip appeared, while the compiled prompt did not change."
+    },
+    {
+      "id": "cfg_link",
+      "status": "pass_with_design_issue",
+      "input": "CFG = 5（黄金组合）",
+      "observed": "The numeric CFG input was 5 and a selected-tag chip appeared, while the compiled prompt did not change."
+    },
+    {
+      "id": "duplicate_sharp_focus",
+      "status": "product_issue",
+      "inputs": ["锐化聚焦", "sharp focus（锐化）"],
+      "observed": "The compiled prompt contained sharp focus twice."
+    },
+    {
+      "id": "copy_prompt",
+      "status": "pass",
+      "observed": "The button changed to 已复制 and 341 characters were present on the clipboard."
+    },
+    {
+      "id": "portrait_size_preset",
+      "status": "pass",
+      "input": "竖版 3:4",
+      "observed": "Width and height changed to 896 × 1152."
+    },
+    {
+      "id": "manual_dimensions",
+      "status": "pass",
+      "observed": "Manual values 768 × 1024 were reflected in the canvas label and request payload."
+    },
+    {
+      "id": "negative_prompt",
+      "status": "pass",
+      "observed": "Edited negative text was reflected in the request payload."
+    },
+    {
+      "id": "payload_preview",
+      "status": "pass",
+      "observed": "Prompt, negative prompt, width, height, steps, CFG, seed, sampler and clip skip matched the controls."
+    },
+    {
+      "id": "cloud_generation",
+      "status": "pass",
+      "settings": {
+        "width": 512,
+        "height": 512,
+        "steps": 10,
+        "guidanceScale": 5,
+        "sampler": "dpmpp_2m_karras",
+        "clipSkip": 2
+      },
+      "observed": {
+        "seed": 1520420440,
+        "serverDuration": "3.5S",
+        "resultVisible": true
+      }
+    },
+    {
+      "id": "download_png",
+      "status": "pass",
+      "observed": "The download button created muse-1520420440.png in the user's Downloads folder."
+    },
+    {
+      "id": "browser_console",
+      "status": "pass",
+      "observed": "No page warning or error entries were present after the complete interaction and generation flow."
+    }
+  ]
+}

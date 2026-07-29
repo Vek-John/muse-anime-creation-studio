@@ -37,6 +37,9 @@ test("server-renders the anime prompt studio", async () => {
   assert.match(html, /模型运行环境/);
   assert.match(html, /本地 GPU/);
   assert.match(html, /云端 GPU/);
+  assert.match(html, /高级生成参数/);
+  assert.match(html, /质量约束/);
+  assert.doesNotMatch(html, /技术优化类/);
   assert.match(html, /查看服务器请求载荷/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/i);
 });

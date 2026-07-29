@@ -1,0 +1,76 @@
+{
+  "reviewedAt": "2026-07-29T09:20:00+08:00",
+  "source": "baseline-results.json",
+  "criteria": "A generation passes only when every expected semantic condition is visibly satisfied. Partial means the main concept is present but at least one condition is missing.",
+  "summary": {
+    "total": 24,
+    "pass": 15,
+    "partial": 6,
+    "fail": 3,
+    "token_pruning_events": 0
+  },
+  "cases": [
+    {
+      "id": "school_idol_boy",
+      "pass": 3,
+      "partial": 0,
+      "fail": 0,
+      "notes": "All three seeds produced one clearly male student in a school blazer."
+    },
+    {
+      "id": "white_background",
+      "pass": 0,
+      "partial": 3,
+      "fail": 0,
+      "notes": "All three removed scenery, but the backgrounds were pale pink, blue, or gray instead of pure white."
+    },
+    {
+      "id": "mixed_couple",
+      "pass": 3,
+      "partial": 0,
+      "fail": 0,
+      "notes": "All three contained one boy and one girl, both visible."
+    },
+    {
+      "id": "two_girls",
+      "pass": 3,
+      "partial": 0,
+      "fail": 0,
+      "notes": "All three contained exactly two girls with coordinated outfits."
+    },
+    {
+      "id": "full_body",
+      "pass": 3,
+      "partial": 0,
+      "fail": 0,
+      "notes": "All three retained head-to-toe framing and visible feet."
+    },
+    {
+      "id": "love_letter",
+      "pass": 0,
+      "partial": 3,
+      "fail": 0,
+      "notes": "The envelope was visible in every seed, but one frame cropped the head and the other two read more as holding than offering."
+    },
+    {
+      "id": "basketball",
+      "pass": 3,
+      "partial": 0,
+      "fail": 0,
+      "notes": "All three showed a visible basketball and an active dribbling pose."
+    },
+    {
+      "id": "circular_crop",
+      "pass": 0,
+      "partial": 0,
+      "fail": 3,
+      "notes": "All three became close-ups without enough crop-safe margin."
+    }
+  ],
+  "nextActions": [
+    "Use the model-card negative prompt and Euler Ancestral as defaults.",
+    "Add explicit exclusions for colored backgrounds and close-up framing.",
+    "Strengthen full-body, envelope-offering, and circular-crop prompt tags.",
+    "Re-run the three affected cases with the same seeds for an A/B comparison."
+  ]
+}

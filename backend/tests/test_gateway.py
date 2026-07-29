@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 from dataclasses import replace
 
+import httpx
 from fastapi.testclient import TestClient
 
 from gateway.config import GatewaySettings
@@ -151,3 +152,35 @@ def test_cloud_connection_keeps_running_remote_worker():
     asyncio.run(manager._ensure_remote_worker())
 
     assert len(connection.commands) == 1
+
+
+def test_prompt_inspection_is_proxied_to_the_active_worker(monkeypatch):
+    async def fake_inspect(payload):
+        assert payload["prompt"] == "1girl, full body"
+        return httpx.Response(
+            200,
+            json={
+                "prompt": payload["prompt"],
+                "negative_prompt": "",
+                "diagnostics": {
+                    "token_usage": {
+                        "tokenizer_1": 4,
+                        "tokenizer_2": 5,
+                        "limit": 75,
+                    },
+                    "omitted_segments": [],
+                    "warnings": [],
+                },
+            },
+            headers={"X-Request-ID": "prompt-test"},
+        )
+
+    monkeypatch.setattr(runtime, "inspect_prompt", fake_inspect)
+    response = client.post(
+        "/v1/prompt/inspect",
+        json={"prompt": "1girl, full body"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["diagnostics"]["token_usage"]["limit"] == 75
+    assert response.headers["X-Request-ID"] == "prompt-test"

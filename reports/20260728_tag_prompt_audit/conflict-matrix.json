@@ -1,0 +1,119 @@
+{
+  "auditedAt": "2026-07-28",
+  "summary": {
+    "hardConflicts": 7,
+    "conditionalConflicts": 5,
+    "schemaProblems": 5
+  },
+  "hardConflicts": [
+    {
+      "id": "scene_location_exclusive",
+      "fields": ["campusScene", "animeScene"],
+      "example": ["教室窗边", "异世界森林"],
+      "currentResult": "Both tags are appended to the prompt.",
+      "requiredPolicy": "Use one location slot. Choosing either field clears the other, or merge both lists into one selector."
+    },
+    {
+      "id": "scene_plain_background_exclusive",
+      "fields": ["campusScene", "animeScene", "background"],
+      "example": ["教室窗边", "异世界森林", "纯白背景"],
+      "currentResult": "The compiled prompt contains classroom, fantasy forest, and plain white background simultaneously.",
+      "requiredPolicy": "A plain-color or no-scenery background must clear detailed locations."
+    },
+    {
+      "id": "subject_count_solo_vs_pair",
+      "fields": ["description", "specialSetting"],
+      "example": ["1girl, solo", "情侣头像（双人互动）"],
+      "currentResult": "The prompt contains both solo and a one-boy/one-girl couple.",
+      "requiredPolicy": "Resolve person count and gender in one canonical subject slot; never concatenate contradictory count tags."
+    },
+    {
+      "id": "subject_gender_identity_vs_personality",
+      "fields": ["campusIdentity", "personality", "specialSetting", "description"],
+      "example": ["校草风男生", "元气少女", "1girl, solo"],
+      "currentResult": "Contradictory gender cues are retained.",
+      "requiredPolicy": "Derive canonical subject gender/count and validate dependent persona choices."
+    },
+    {
+      "id": "primary_action_exclusive",
+      "fields": ["interaction", "atmosphereAction"],
+      "example": ["递情书", "打篮球"],
+      "currentResult": "Both primary actions are appended.",
+      "requiredPolicy": "Allow one primary action; model secondary gestures as separate low-priority modifiers only."
+    },
+    {
+      "id": "identity_outfit_conflict",
+      "fields": ["campusIdentity", "outfit"],
+      "example": ["JK 制服女生", "机甲战衣"],
+      "currentResult": "Both school uniform and mecha bodysuit are appended.",
+      "requiredPolicy": "Explicit outfit overrides implied identity outfit, with a visible replacement notice."
+    },
+    {
+      "id": "format_aspect_ratio_conflict",
+      "fields": ["format", "width", "height"],
+      "example": ["微信头像", "海报 2:3"],
+      "currentResult": "Avatar composition tags can coexist with a poster aspect ratio.",
+      "requiredPolicy": "Format presets should set compatible dimensions and safe-area constraints together."
+    }
+  ],
+  "conditionalConflicts": [
+    {
+      "id": "base_style_vs_reference_style",
+      "fields": ["baseStyle", "animeReference"],
+      "risk": "Two style sources compete with no declared precedence.",
+      "policy": "Allow at most one primary style; optional secondary style must be explicitly marked and lower priority."
+    },
+    {
+      "id": "background_treatment_vs_location",
+      "fields": ["background", "campusScene", "animeScene"],
+      "risk": "Bokeh or negative-space treatments can be compatible, while plain colors are not.",
+      "policy": "Split background into location and treatment; attach compatibility metadata per option."
+    },
+    {
+      "id": "pose_action_compatibility",
+      "fields": ["pose", "interaction", "atmosphereAction"],
+      "risk": "Sitting, full-body framing, or looking-up cues may be incompatible with some actions.",
+      "policy": "Declare requires/conflicts rules on action tags and auto-select a compatible framing."
+    },
+    {
+      "id": "accessory_outfit_collision",
+      "fields": ["outfit", "accessory"],
+      "risk": "Some accessories compete for the same hand, head, or silhouette.",
+      "policy": "Assign attachment slots such as head, hand, back, neck and cap the number per slot."
+    },
+    {
+      "id": "usage_claim_vs_output",
+      "fields": ["usage"],
+      "example": ["可商用（用于社团海报）"],
+      "risk": "The mapping only adds poster-ready composition; it cannot determine legal clearance.",
+      "policy": "Remove the commercial-use promise and replace it with a non-legal composition preset plus a separate license checklist."
+    }
+  ],
+  "schemaProblems": [
+    {
+      "field": "pose",
+      "problem": "The field mixes camera direction, crop, posture, gaze and expression.",
+      "splitInto": ["cameraView", "framing", "bodyPose", "gaze"]
+    },
+    {
+      "field": "hairstyle",
+      "problem": "The field mixes hair shape and color.",
+      "splitInto": ["hairStyle", "hairColor"]
+    },
+    {
+      "field": "facialFeatures",
+      "problem": "The field mixes eye shape, expression and blush.",
+      "splitInto": ["eyeFeature", "facialExpression"]
+    },
+    {
+      "field": "faceDetails",
+      "problem": "The field mixes ears, horns, masks and glasses.",
+      "splitInto": ["speciesFeature", "faceAccessory"]
+    },
+    {
+      "field": "technical",
+      "problem": "Sampling numbers, positive quality tags and negative constraints are presented as one peer tag group.",
+      "splitInto": ["advancedGenerationSettings", "positiveQualityTags", "negativePromptRules"]
+    }
+  ]
+}

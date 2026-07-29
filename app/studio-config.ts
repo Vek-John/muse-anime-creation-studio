@@ -337,39 +337,21 @@ export const PARAMETER_GROUPS: ParameterGroup[] = [
           "高清无噪点",
           "不撞款",
           "小众设计",
-          "可商用（用于社团海报）",
-        ],
-      },
-    ],
-  },
-  {
-    id: "technical",
-    index: "08",
-    title: "技术优化类",
-    description: "预留模型采样与负面约束",
-    fields: [
-      {
-        id: "sampling",
-        label: "采样参数",
-        options: [
-          "20 步采样",
-          "CFG = 5（黄金组合）",
-          "sharp focus（锐化）",
-        ],
-      },
-      {
-        id: "negativeConstraint",
-        label: "避坑约束",
-        options: [
-          "五官正常",
-          "无穿模",
-          "发丝不模糊",
-          "比例协调",
+          "社团海报构图",
         ],
       },
     ],
   },
 ];
+
+export const QUALITY_GUARD_OPTIONS = [
+  "五官正常",
+  "无穿模",
+  "发丝不模糊",
+  "比例协调",
+] as const;
+
+export const DEFAULT_QUALITY_GUARD = QUALITY_GUARD_OPTIONS[0];
 
 export const DEFAULT_SELECTIONS: Record<string, string> = {
   baseStyle: "日系萌系",
@@ -380,5 +362,4 @@ export const DEFAULT_SELECTIONS: Record<string, string> = {
   campusScene: "樱花树下",
   emotion: "温柔治愈",
   format: "小红书头像",
-  negativeConstraint: "五官正常",
 };

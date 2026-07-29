@@ -1,8 +1,13 @@
-export const QUALITY_PREFIX =
-  "masterpiece, best quality";
+export const RATING_TAG = "safe";
+
+export const QUALITY_SUFFIX =
+  "masterpiece, high score, great score, absurdres";
+
+// Kept as a compatibility export for local audit scripts.
+export const QUALITY_PREFIX = QUALITY_SUFFIX;
 
 export const DEFAULT_NEGATIVE_PROMPT =
-  "lowres, worst quality, low quality, bad anatomy, bad hands, missing fingers, extra fingers, fused fingers, deformed, disfigured, text, watermark, logo, signature, jpeg artifacts, blurry";
+  "lowres, bad anatomy, bad hands, text, error, missing finger, extra digits, fewer digits, cropped, worst quality, low quality, low score, bad score, average score, signature, watermark, username, blurry";
 
 const PROMPT_TAGS: Record<string, string> = {
   日系萌系: "anime style",
@@ -37,7 +42,7 @@ const PROMPT_TAGS: Record<string, string> = {
   "银发（异色发）": "silver hair",
   渐变发色: "gradient hair",
   大眼睛: "large expressive eyes",
-  异瞳: "heterochromia",
+  异瞳: "portrait, centered face, both eyes visible, heterochromia",
   浅杏眼: "light almond-shaped eyes",
   微笑唇: "gentle smile",
   脸红娇羞: "blush, shy",
@@ -52,7 +57,8 @@ const PROMPT_TAGS: Record<string, string> = {
   圆框眼镜: "round glasses",
   方框眼镜: "square glasses",
   "JK 制服女生": "1girl, japanese school uniform",
-  校草风男生: "1boy, handsome school idol",
+  校草风男生:
+    "1boy, solo, male focus, masculine face, handsome male student, school blazer",
   "社团达人（动漫社）": "anime club member",
   "社团达人（汉服社）": "hanfu club member",
   学霸: "honor student, book",
@@ -67,7 +73,8 @@ const PROMPT_TAGS: Record<string, string> = {
   清冷御姐: "cool mature woman",
   腹黑少年: "mischievous boy, sly smile",
   "情侣头像（双人互动）": "1boy and 1girl, couple interaction, matching profile picture",
-  "闺蜜头像（同款不同色）": "2girls, best friends, matching outfits",
+  "闺蜜头像（同款不同色）":
+    "2girls, best friends, matching outfits, different colors, standing side by side",
   兄弟羁绊风: "2boys, brotherly bond",
   "JK 制服": "japanese school uniform",
   水手服: "sailor uniform",
@@ -82,7 +89,7 @@ const PROMPT_TAGS: Record<string, string> = {
   星星发卡: "star hairclip",
   耳机: "headphones",
   项链: "necklace",
-  书包: "school bag",
+  书包: "carrying one school bag",
   棒球帽: "baseball cap",
   佩剑: "sword",
   魔法杖: "magic wand",
@@ -90,7 +97,7 @@ const PROMPT_TAGS: Record<string, string> = {
   正面视角: "front view",
   侧脸: "profile",
   半身像: "upper body",
-  全身像: "full body",
+  全身像: "full body, wide shot, head-to-toe, feet visible",
   坐姿: "sitting",
   站姿: "standing",
   低头浅笑: "looking down, gentle smile",
@@ -98,7 +105,8 @@ const PROMPT_TAGS: Record<string, string> = {
   比耶: "peace sign",
   托腮: "hand on cheek",
   挥手: "waving",
-  递情书: "giving a love letter",
+  递情书:
+    "outstretched hand, visible envelope, offering love letter to viewer",
   "背靠背（情侣）": "back-to-back couple",
   并肩走: "walking side by side",
   摸头杀: "head pat",
@@ -106,7 +114,8 @@ const PROMPT_TAGS: Record<string, string> = {
   吹樱花: "blowing cherry blossom petals",
   戴耳机听歌: "wearing headphones, listening to music",
   翻漫画书: "reading manga",
-  打篮球: "playing basketball",
+  打篮球:
+    "full body, dribbling a basketball, visible basketball, playing basketball, dynamic pose",
   魔法施法: "casting magic, magic effects",
   战斗姿势: "battle pose, dynamic",
   樱花树下: "under cherry blossom tree, falling petals",
@@ -121,7 +130,8 @@ const PROMPT_TAGS: Record<string, string> = {
   异世界森林: "fantasy forest",
   赛博朋克街道: "cyberpunk street, neon signs",
   古风庭院: "traditional chinese courtyard",
-  纯白背景: "plain white background",
+  纯白背景:
+    "white background, simple background, pure white background",
   粉色背景: "plain pink background",
   蓝色背景: "plain blue background",
   渐变背景: "gradient background",
@@ -145,11 +155,14 @@ const PROMPT_TAGS: Record<string, string> = {
   小红书头像: "social media avatar, centered composition",
   微博头像: "social media avatar, centered composition",
   正方形裁剪兼容: "square composition, centered subject",
-  圆形裁剪兼容: "circular crop safe, centered subject",
+  圆形裁剪兼容:
+    "full body, wide shot, front view, centered subject, head-to-toe, feet visible, circular crop safe",
   无水印: "clean image, no watermark",
   高清无噪点: "high resolution, clean, low noise",
   不撞款: "original character design",
   小众设计: "distinctive niche design",
+  社团海报构图: "poster-ready composition",
+  // Legacy compatibility for older saved selections.
   "可商用（用于社团海报）": "poster-ready composition",
   "20 步采样": "",
   "CFG = 5（黄金组合）": "",

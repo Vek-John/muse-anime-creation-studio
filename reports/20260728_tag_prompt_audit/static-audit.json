@@ -1,0 +1,1315 @@
+{
+  "groupCount": 8,
+  "fieldCount": 23,
+  "optionCount": 153,
+  "mappedCount": 153,
+  "unmapped": [],
+  "emptyMappings": [
+    {
+      "groupId": "technical",
+      "groupIndex": 7,
+      "fieldIndex": 0,
+      "fieldId": "sampling",
+      "label": "采样参数",
+      "options": [
+        "20 步采样",
+        "CFG = 5（黄金组合）",
+        "sharp focus（锐化）"
+      ],
+      "value": "20 步采样",
+      "modelTag": ""
+    },
+    {
+      "groupId": "technical",
+      "groupIndex": 7,
+      "fieldIndex": 0,
+      "fieldId": "sampling",
+      "label": "采样参数",
+      "options": [
+        "20 步采样",
+        "CFG = 5（黄金组合）",
+        "sharp focus（锐化）"
+      ],
+      "value": "CFG = 5（黄金组合）",
+      "modelTag": ""
+    }
+  ],
+  "duplicateMappings": [
+    {
+      "modelTag": "sharp focus",
+      "values": [
+        "锐化聚焦",
+        "sharp focus（锐化）"
+      ]
+    },
+    {
+      "modelTag": "profile picture, centered composition",
+      "values": [
+        "微信头像",
+        "QQ 头像"
+      ]
+    },
+    {
+      "modelTag": "social media avatar, centered composition",
+      "values": [
+        "小红书头像",
+        "微博头像"
+      ]
+    }
+  ],
+  "defaultSelectionOrder": [
+    {
+      "fieldId": "baseStyle",
+      "value": "日系萌系"
+    },
+    {
+      "fieldId": "texture",
+      "value": "4K 高清"
+    },
+    {
+      "fieldId": "hairstyle",
+      "value": "短发狼尾"
+    },
+    {
+      "fieldId": "personality",
+      "value": "元气少女"
+    },
+    {
+      "fieldId": "pose",
+      "value": "半身像"
+    },
+    {
+      "fieldId": "campusScene",
+      "value": "樱花树下"
+    },
+    {
+      "fieldId": "emotion",
+      "value": "温柔治愈"
+    },
+    {
+      "fieldId": "format",
+      "value": "小红书头像"
+    },
+    {
+      "fieldId": "negativeConstraint",
+      "value": "五官正常"
+    }
+  ],
+  "defaultPrompt": "masterpiece, best quality, 1girl, solo, looking back at viewer, gentle smile, soft backlight, clean composition, anime style, high resolution, short wolf cut, energetic girl, upper body, under cherry blossom tree, falling petals, gentle, soothing, social media avatar, centered composition, symmetrical face, correct facial features",
+  "defaultPromptCharacters": 332,
+  "allFieldsPrompt": "masterpiece, best quality, 1girl, solo, ancient chinese fantasy, xianxia, elegant, fantasy game illustration, ornate anime costume, detailed individual hair strands, short wolf cut, raised eyebrow, energetic expression, mole under eye, 1girl, japanese school uniform, airhead, innocent expression, 1boy and 1girl, couple interaction, matching profile picture, mecha bodysuit, mechanical armor, cat ear headband, looking down, gentle smile, giving a love letter, wearing headphones, listening to music, under cherry blossom tree, falling petals, traditional chinese courtyard, negative space, minimalist background, world-weary expression, editorial, refined niche aesthetic, social media avatar, centered composition, high resolution, clean, low noise, sharp focus, symmetrical face, correct facial features",
+  "allFieldsPromptCharacters": 807,
+  "optionMappings": [
+    {
+      "groupId": "style",
+      "fieldId": "baseStyle",
+      "label": "基础画风",
+      "value": "日系萌系",
+      "modelTag": "anime style"
+    },
+    {
+      "groupId": "style",
+      "fieldId": "baseStyle",
+      "label": "基础画风",
+      "value": "古风仙侠",
+      "modelTag": "ancient chinese fantasy, xianxia, elegant"
+    },
+    {
+      "groupId": "style",
+      "fieldId": "baseStyle",
+      "label": "基础画风",
+      "value": "赛博科幻",
+      "modelTag": "cyberpunk, science fiction, neon city"
+    },
+    {
+      "groupId": "style",
+      "fieldId": "baseStyle",
+      "label": "基础画风",
+      "value": "机甲硬核",
+      "modelTag": "mecha, mechanical armor, hard surface"
+    },
+    {
+      "groupId": "style",
+      "fieldId": "baseStyle",
+      "label": "基础画风",
+      "value": "水墨淡彩",
+      "modelTag": "chinese ink wash painting, light colors"
+    },
+    {
+      "groupId": "style",
+      "fieldId": "baseStyle",
+      "label": "基础画风",
+      "value": "校园清新",
+      "modelTag": "school life, fresh atmosphere"
+    },
+    {
+      "groupId": "style",
+      "fieldId": "baseStyle",
+      "label": "基础画风",
+      "value": "热血战斗",
+      "modelTag": "dynamic action, intense battle"
+    },
+    {
+      "groupId": "style",
+      "fieldId": "baseStyle",
+      "label": "基础画风",
+      "value": "清冷治愈",
+      "modelTag": "calm, cool palette, healing atmosphere"
+    },
+    {
+      "groupId": "style",
+      "fieldId": "baseStyle",
+      "label": "基础画风",
+      "value": "厚涂写实",
+      "modelTag": "painterly, semi-realistic, thick painting"
+    },
+    {
+      "groupId": "style",
+      "fieldId": "baseStyle",
+      "label": "基础画风",
+      "value": "线稿简约",
+      "modelTag": "clean lineart, minimalist illustration"
+    },
+    {
+      "groupId": "style",
+      "fieldId": "animeReference",
+      "label": "动漫 IP 衍生",
+      "value": "原神风",
+      "modelTag": "fantasy game illustration, ornate anime costume"
+    },
+    {
+      "groupId": "style",
+      "fieldId": "animeReference",
+      "label": "动漫 IP 衍生",
+      "value": "火影忍者画风",
+      "modelTag": "ninja anime aesthetic, cel shading"
+    },
+    {
+      "groupId": "style",
+      "fieldId": "animeReference",
+      "label": "动漫 IP 衍生",
+      "value": "鬼灭之刃质感",
+      "modelTag": "taisho era fantasy, dramatic anime lighting"
+    },
+    {
+      "groupId": "style",
+      "fieldId": "animeReference",
+      "label": "动漫 IP 衍生",
+      "value": "海贼王手绘风",
+      "modelTag": "adventure manga aesthetic, expressive linework"
+    },
+    {
+      "groupId": "style",
+      "fieldId": "animeReference",
+      "label": "动漫 IP 衍生",
+      "value": "罗小黑战记治愈风",
+      "modelTag": "soft chinese animation aesthetic, cozy"
+    },
+    {
+      "groupId": "style",
+      "fieldId": "texture",
+      "label": "细节质感",
+      "value": "4K 高清",
+      "modelTag": "high resolution"
+    },
+    {
+      "groupId": "style",
+      "fieldId": "texture",
+      "label": "细节质感",
+      "value": "发丝清晰",
+      "modelTag": "detailed individual hair strands"
+    },
+    {
+      "groupId": "style",
+      "fieldId": "texture",
+      "label": "细节质感",
+      "value": "阴影柔和",
+      "modelTag": "soft shadows"
+    },
+    {
+      "groupId": "style",
+      "fieldId": "texture",
+      "label": "细节质感",
+      "value": "锐化聚焦",
+      "modelTag": "sharp focus"
+    },
+    {
+      "groupId": "style",
+      "fieldId": "texture",
+      "label": "细节质感",
+      "value": "低饱和",
+      "modelTag": "low saturation"
+    },
+    {
+      "groupId": "style",
+      "fieldId": "texture",
+      "label": "细节质感",
+      "value": "马卡龙色调",
+      "modelTag": "pastel color palette"
+    },
+    {
+      "groupId": "style",
+      "fieldId": "texture",
+      "label": "细节质感",
+      "value": "霓虹光效",
+      "modelTag": "neon lighting, glow"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "hairstyle",
+      "label": "发型（外貌特征）",
+      "value": "双马尾",
+      "modelTag": "twintails"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "hairstyle",
+      "label": "发型（外貌特征）",
+      "value": "高马尾",
+      "modelTag": "high ponytail"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "hairstyle",
+      "label": "发型（外貌特征）",
+      "value": "短发狼尾",
+      "modelTag": "short wolf cut"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "hairstyle",
+      "label": "发型（外貌特征）",
+      "value": "长卷发",
+      "modelTag": "long wavy hair"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "hairstyle",
+      "label": "发型（外貌特征）",
+      "value": "呆毛",
+      "modelTag": "ahoge"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "hairstyle",
+      "label": "发型（外貌特征）",
+      "value": "粉毛",
+      "modelTag": "pink hair"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "hairstyle",
+      "label": "发型（外貌特征）",
+      "value": "蓝毛",
+      "modelTag": "blue hair"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "hairstyle",
+      "label": "发型（外貌特征）",
+      "value": "银发（异色发）",
+      "modelTag": "silver hair"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "hairstyle",
+      "label": "发型（外貌特征）",
+      "value": "渐变发色",
+      "modelTag": "gradient hair"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "facialFeatures",
+      "label": "五官（外貌特征）",
+      "value": "大眼睛",
+      "modelTag": "large expressive eyes"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "facialFeatures",
+      "label": "五官（外貌特征）",
+      "value": "异瞳",
+      "modelTag": "heterochromia"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "facialFeatures",
+      "label": "五官（外貌特征）",
+      "value": "浅杏眼",
+      "modelTag": "light almond-shaped eyes"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "facialFeatures",
+      "label": "五官（外貌特征）",
+      "value": "微笑唇",
+      "modelTag": "gentle smile"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "facialFeatures",
+      "label": "五官（外貌特征）",
+      "value": "脸红娇羞",
+      "modelTag": "blush, shy"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "facialFeatures",
+      "label": "五官（外貌特征）",
+      "value": "清冷眼眸",
+      "modelTag": "cool detached gaze"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "facialFeatures",
+      "label": "五官（外貌特征）",
+      "value": "元气挑眉",
+      "modelTag": "raised eyebrow, energetic expression"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "faceDetails",
+      "label": "面部细节",
+      "value": "雀斑",
+      "modelTag": "freckles"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "faceDetails",
+      "label": "面部细节",
+      "value": "泪痣",
+      "modelTag": "mole under eye"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "faceDetails",
+      "label": "面部细节",
+      "value": "猫耳",
+      "modelTag": "cat ears"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "faceDetails",
+      "label": "面部细节",
+      "value": "狐耳（兽耳）",
+      "modelTag": "fox ears"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "faceDetails",
+      "label": "面部细节",
+      "value": "恶魔角",
+      "modelTag": "demon horns"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "faceDetails",
+      "label": "面部细节",
+      "value": "口罩遮脸",
+      "modelTag": "face mask"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "faceDetails",
+      "label": "面部细节",
+      "value": "圆框眼镜",
+      "modelTag": "round glasses"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "faceDetails",
+      "label": "面部细节",
+      "value": "方框眼镜",
+      "modelTag": "square glasses"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "campusIdentity",
+      "label": "校园身份（人设）",
+      "value": "JK 制服女生",
+      "modelTag": "1girl, japanese school uniform"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "campusIdentity",
+      "label": "校园身份（人设）",
+      "value": "校草风男生",
+      "modelTag": "1boy, handsome school idol"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "campusIdentity",
+      "label": "校园身份（人设）",
+      "value": "社团达人（动漫社）",
+      "modelTag": "anime club member"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "campusIdentity",
+      "label": "校园身份（人设）",
+      "value": "社团达人（汉服社）",
+      "modelTag": "hanfu club member"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "campusIdentity",
+      "label": "校园身份（人设）",
+      "value": "学霸",
+      "modelTag": "honor student, book"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "campusIdentity",
+      "label": "校园身份（人设）",
+      "value": "篮球运动系",
+      "modelTag": "basketball player"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "campusIdentity",
+      "label": "校园身份（人设）",
+      "value": "足球运动系",
+      "modelTag": "soccer player"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "personality",
+      "label": "二次元人设",
+      "value": "傲娇",
+      "modelTag": "tsundere"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "personality",
+      "label": "二次元人设",
+      "value": "天然呆",
+      "modelTag": "airhead, innocent expression"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "personality",
+      "label": "二次元人设",
+      "value": "病娇",
+      "modelTag": "yandere, intense gaze"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "personality",
+      "label": "二次元人设",
+      "value": "中二",
+      "modelTag": "chuunibyou, dramatic pose"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "personality",
+      "label": "二次元人设",
+      "value": "温柔学长",
+      "modelTag": "gentle senior boy"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "personality",
+      "label": "二次元人设",
+      "value": "元气少女",
+      "modelTag": "energetic girl"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "personality",
+      "label": "二次元人设",
+      "value": "清冷御姐",
+      "modelTag": "cool mature woman"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "personality",
+      "label": "二次元人设",
+      "value": "腹黑少年",
+      "modelTag": "mischievous boy, sly smile"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "specialSetting",
+      "label": "特殊设定",
+      "value": "情侣头像（双人互动）",
+      "modelTag": "1boy and 1girl, couple interaction, matching profile picture"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "specialSetting",
+      "label": "特殊设定",
+      "value": "闺蜜头像（同款不同色）",
+      "modelTag": "2girls, best friends, matching outfits"
+    },
+    {
+      "groupId": "character",
+      "fieldId": "specialSetting",
+      "label": "特殊设定",
+      "value": "兄弟羁绊风",
+      "modelTag": "2boys, brotherly bond"
+    },
+    {
+      "groupId": "wardrobe",
+      "fieldId": "outfit",
+      "label": "服装风格",
+      "value": "JK 制服",
+      "modelTag": "japanese school uniform"
+    },
+    {
+      "groupId": "wardrobe",
+      "fieldId": "outfit",
+      "label": "服装风格",
+      "value": "水手服",
+      "modelTag": "sailor uniform"
+    },
+    {
+      "groupId": "wardrobe",
+      "fieldId": "outfit",
+      "label": "服装风格",
+      "value": "汉服",
+      "modelTag": "hanfu"
+    },
+    {
+      "groupId": "wardrobe",
+      "fieldId": "outfit",
+      "label": "服装风格",
+      "value": "Lolita",
+      "modelTag": "lolita fashion"
+    },
+    {
+      "groupId": "wardrobe",
+      "fieldId": "outfit",
+      "label": "服装风格",
+      "value": "校园西装",
+      "modelTag": "school blazer"
+    },
+    {
+      "groupId": "wardrobe",
+      "fieldId": "outfit",
+      "label": "服装风格",
+      "value": "运动校服",
+      "modelTag": "school tracksuit"
+    },
+    {
+      "groupId": "wardrobe",
+      "fieldId": "outfit",
+      "label": "服装风格",
+      "value": "工装",
+      "modelTag": "utility wear, workwear"
+    },
+    {
+      "groupId": "wardrobe",
+      "fieldId": "outfit",
+      "label": "服装风格",
+      "value": "魔法学院服",
+      "modelTag": "magic academy uniform"
+    },
+    {
+      "groupId": "wardrobe",
+      "fieldId": "outfit",
+      "label": "服装风格",
+      "value": "机甲战衣",
+      "modelTag": "mecha bodysuit, mechanical armor"
+    },
+    {
+      "groupId": "wardrobe",
+      "fieldId": "accessory",
+      "label": "配饰细节",
+      "value": "猫耳发带",
+      "modelTag": "cat ear headband"
+    },
+    {
+      "groupId": "wardrobe",
+      "fieldId": "accessory",
+      "label": "配饰细节",
+      "value": "星星发卡",
+      "modelTag": "star hairclip"
+    },
+    {
+      "groupId": "wardrobe",
+      "fieldId": "accessory",
+      "label": "配饰细节",
+      "value": "耳机",
+      "modelTag": "headphones"
+    },
+    {
+      "groupId": "wardrobe",
+      "fieldId": "accessory",
+      "label": "配饰细节",
+      "value": "项链",
+      "modelTag": "necklace"
+    },
+    {
+      "groupId": "wardrobe",
+      "fieldId": "accessory",
+      "label": "配饰细节",
+      "value": "书包",
+      "modelTag": "school bag"
+    },
+    {
+      "groupId": "wardrobe",
+      "fieldId": "accessory",
+      "label": "配饰细节",
+      "value": "棒球帽",
+      "modelTag": "baseball cap"
+    },
+    {
+      "groupId": "wardrobe",
+      "fieldId": "accessory",
+      "label": "配饰细节",
+      "value": "佩剑",
+      "modelTag": "sword"
+    },
+    {
+      "groupId": "wardrobe",
+      "fieldId": "accessory",
+      "label": "配饰细节",
+      "value": "魔法杖",
+      "modelTag": "magic wand"
+    },
+    {
+      "groupId": "wardrobe",
+      "fieldId": "accessory",
+      "label": "配饰细节",
+      "value": "围巾手套",
+      "modelTag": "scarf, gloves"
+    },
+    {
+      "groupId": "pose",
+      "fieldId": "pose",
+      "label": "基础姿态",
+      "value": "正面视角",
+      "modelTag": "front view"
+    },
+    {
+      "groupId": "pose",
+      "fieldId": "pose",
+      "label": "基础姿态",
+      "value": "侧脸",
+      "modelTag": "profile"
+    },
+    {
+      "groupId": "pose",
+      "fieldId": "pose",
+      "label": "基础姿态",
+      "value": "半身像",
+      "modelTag": "upper body"
+    },
+    {
+      "groupId": "pose",
+      "fieldId": "pose",
+      "label": "基础姿态",
+      "value": "全身像",
+      "modelTag": "full body"
+    },
+    {
+      "groupId": "pose",
+      "fieldId": "pose",
+      "label": "基础姿态",
+      "value": "坐姿",
+      "modelTag": "sitting"
+    },
+    {
+      "groupId": "pose",
+      "fieldId": "pose",
+      "label": "基础姿态",
+      "value": "站姿",
+      "modelTag": "standing"
+    },
+    {
+      "groupId": "pose",
+      "fieldId": "pose",
+      "label": "基础姿态",
+      "value": "低头浅笑",
+      "modelTag": "looking down, gentle smile"
+    },
+    {
+      "groupId": "pose",
+      "fieldId": "pose",
+      "label": "基础姿态",
+      "value": "抬头望天",
+      "modelTag": "looking up at sky"
+    },
+    {
+      "groupId": "pose",
+      "fieldId": "interaction",
+      "label": "互动动作",
+      "value": "比耶",
+      "modelTag": "peace sign"
+    },
+    {
+      "groupId": "pose",
+      "fieldId": "interaction",
+      "label": "互动动作",
+      "value": "托腮",
+      "modelTag": "hand on cheek"
+    },
+    {
+      "groupId": "pose",
+      "fieldId": "interaction",
+      "label": "互动动作",
+      "value": "挥手",
+      "modelTag": "waving"
+    },
+    {
+      "groupId": "pose",
+      "fieldId": "interaction",
+      "label": "互动动作",
+      "value": "递情书",
+      "modelTag": "giving a love letter"
+    },
+    {
+      "groupId": "pose",
+      "fieldId": "interaction",
+      "label": "互动动作",
+      "value": "背靠背（情侣）",
+      "modelTag": "back-to-back couple"
+    },
+    {
+      "groupId": "pose",
+      "fieldId": "interaction",
+      "label": "互动动作",
+      "value": "并肩走",
+      "modelTag": "walking side by side"
+    },
+    {
+      "groupId": "pose",
+      "fieldId": "interaction",
+      "label": "互动动作",
+      "value": "摸头杀",
+      "modelTag": "head pat"
+    },
+    {
+      "groupId": "pose",
+      "fieldId": "interaction",
+      "label": "互动动作",
+      "value": "对视微笑",
+      "modelTag": "eye contact, smiling"
+    },
+    {
+      "groupId": "pose",
+      "fieldId": "atmosphereAction",
+      "label": "氛围动作",
+      "value": "吹樱花",
+      "modelTag": "blowing cherry blossom petals"
+    },
+    {
+      "groupId": "pose",
+      "fieldId": "atmosphereAction",
+      "label": "氛围动作",
+      "value": "戴耳机听歌",
+      "modelTag": "wearing headphones, listening to music"
+    },
+    {
+      "groupId": "pose",
+      "fieldId": "atmosphereAction",
+      "label": "氛围动作",
+      "value": "翻漫画书",
+      "modelTag": "reading manga"
+    },
+    {
+      "groupId": "pose",
+      "fieldId": "atmosphereAction",
+      "label": "氛围动作",
+      "value": "打篮球",
+      "modelTag": "playing basketball"
+    },
+    {
+      "groupId": "pose",
+      "fieldId": "atmosphereAction",
+      "label": "氛围动作",
+      "value": "魔法施法",
+      "modelTag": "casting magic, magic effects"
+    },
+    {
+      "groupId": "pose",
+      "fieldId": "atmosphereAction",
+      "label": "氛围动作",
+      "value": "战斗姿势",
+      "modelTag": "battle pose, dynamic"
+    },
+    {
+      "groupId": "scene",
+      "fieldId": "campusScene",
+      "label": "校园场景",
+      "value": "樱花树下",
+      "modelTag": "under cherry blossom tree, falling petals"
+    },
+    {
+      "groupId": "scene",
+      "fieldId": "campusScene",
+      "label": "校园场景",
+      "value": "教室窗边",
+      "modelTag": "beside classroom window"
+    },
+    {
+      "groupId": "scene",
+      "fieldId": "campusScene",
+      "label": "校园场景",
+      "value": "操场跑道",
+      "modelTag": "school running track"
+    },
+    {
+      "groupId": "scene",
+      "fieldId": "campusScene",
+      "label": "校园场景",
+      "value": "图书馆",
+      "modelTag": "library"
+    },
+    {
+      "groupId": "scene",
+      "fieldId": "campusScene",
+      "label": "校园场景",
+      "value": "放学小路",
+      "modelTag": "after-school street"
+    },
+    {
+      "groupId": "scene",
+      "fieldId": "campusScene",
+      "label": "校园场景",
+      "value": "天台",
+      "modelTag": "school rooftop"
+    },
+    {
+      "groupId": "scene",
+      "fieldId": "animeScene",
+      "label": "二次元场景",
+      "value": "星空下",
+      "modelTag": "under starry sky"
+    },
+    {
+      "groupId": "scene",
+      "fieldId": "animeScene",
+      "label": "二次元场景",
+      "value": "海边落日",
+      "modelTag": "seaside sunset"
+    },
+    {
+      "groupId": "scene",
+      "fieldId": "animeScene",
+      "label": "二次元场景",
+      "value": "雨夜公交站",
+      "modelTag": "bus stop at rainy night"
+    },
+    {
+      "groupId": "scene",
+      "fieldId": "animeScene",
+      "label": "二次元场景",
+      "value": "异世界森林",
+      "modelTag": "fantasy forest"
+    },
+    {
+      "groupId": "scene",
+      "fieldId": "animeScene",
+      "label": "二次元场景",
+      "value": "赛博朋克街道",
+      "modelTag": "cyberpunk street, neon signs"
+    },
+    {
+      "groupId": "scene",
+      "fieldId": "animeScene",
+      "label": "二次元场景",
+      "value": "古风庭院",
+      "modelTag": "traditional chinese courtyard"
+    },
+    {
+      "groupId": "scene",
+      "fieldId": "background",
+      "label": "背景简化",
+      "value": "纯白背景",
+      "modelTag": "plain white background"
+    },
+    {
+      "groupId": "scene",
+      "fieldId": "background",
+      "label": "背景简化",
+      "value": "粉色背景",
+      "modelTag": "plain pink background"
+    },
+    {
+      "groupId": "scene",
+      "fieldId": "background",
+      "label": "背景简化",
+      "value": "蓝色背景",
+      "modelTag": "plain blue background"
+    },
+    {
+      "groupId": "scene",
+      "fieldId": "background",
+      "label": "背景简化",
+      "value": "渐变背景",
+      "modelTag": "gradient background"
+    },
+    {
+      "groupId": "scene",
+      "fieldId": "background",
+      "label": "背景简化",
+      "value": "模糊光斑",
+      "modelTag": "bokeh background"
+    },
+    {
+      "groupId": "scene",
+      "fieldId": "background",
+      "label": "背景简化",
+      "value": "留白设计",
+      "modelTag": "negative space, minimalist background"
+    },
+    {
+      "groupId": "mood",
+      "fieldId": "emotion",
+      "label": "情绪表达",
+      "value": "元气满满",
+      "modelTag": "cheerful, energetic"
+    },
+    {
+      "groupId": "mood",
+      "fieldId": "emotion",
+      "label": "情绪表达",
+      "value": "温柔治愈",
+      "modelTag": "gentle, soothing"
+    },
+    {
+      "groupId": "mood",
+      "fieldId": "emotion",
+      "label": "情绪表达",
+      "value": "清冷疏离",
+      "modelTag": "cool, distant"
+    },
+    {
+      "groupId": "mood",
+      "fieldId": "emotion",
+      "label": "情绪表达",
+      "value": "傲娇炸毛",
+      "modelTag": "tsundere, flustered"
+    },
+    {
+      "groupId": "mood",
+      "fieldId": "emotion",
+      "label": "情绪表达",
+      "value": "害羞脸红",
+      "modelTag": "shy, blush"
+    },
+    {
+      "groupId": "mood",
+      "fieldId": "emotion",
+      "label": "情绪表达",
+      "value": "热血激昂",
+      "modelTag": "passionate, intense"
+    },
+    {
+      "groupId": "mood",
+      "fieldId": "emotion",
+      "label": "情绪表达",
+      "value": "厌世感",
+      "modelTag": "world-weary expression"
+    },
+    {
+      "groupId": "mood",
+      "fieldId": "tone",
+      "label": "氛围基调",
+      "value": "甜妹感",
+      "modelTag": "sweet girl aesthetic"
+    },
+    {
+      "groupId": "mood",
+      "fieldId": "tone",
+      "label": "氛围基调",
+      "value": "盐系",
+      "modelTag": "clean cool aesthetic"
+    },
+    {
+      "groupId": "mood",
+      "fieldId": "tone",
+      "label": "氛围基调",
+      "value": "氛围感",
+      "modelTag": "cinematic atmosphere"
+    },
+    {
+      "groupId": "mood",
+      "fieldId": "tone",
+      "label": "氛围基调",
+      "value": "高级小众",
+      "modelTag": "editorial, refined niche aesthetic"
+    },
+    {
+      "groupId": "mood",
+      "fieldId": "tone",
+      "label": "氛围基调",
+      "value": "甜而不腻",
+      "modelTag": "subtle sweetness"
+    },
+    {
+      "groupId": "mood",
+      "fieldId": "tone",
+      "label": "氛围基调",
+      "value": "酷飒拽",
+      "modelTag": "cool, confident, edgy"
+    },
+    {
+      "groupId": "social",
+      "fieldId": "format",
+      "label": "尺寸适配",
+      "value": "微信头像",
+      "modelTag": "profile picture, centered composition"
+    },
+    {
+      "groupId": "social",
+      "fieldId": "format",
+      "label": "尺寸适配",
+      "value": "QQ 头像",
+      "modelTag": "profile picture, centered composition"
+    },
+    {
+      "groupId": "social",
+      "fieldId": "format",
+      "label": "尺寸适配",
+      "value": "小红书头像",
+      "modelTag": "social media avatar, centered composition"
+    },
+    {
+      "groupId": "social",
+      "fieldId": "format",
+      "label": "尺寸适配",
+      "value": "微博头像",
+      "modelTag": "social media avatar, centered composition"
+    },
+    {
+      "groupId": "social",
+      "fieldId": "format",
+      "label": "尺寸适配",
+      "value": "正方形裁剪兼容",
+      "modelTag": "square composition, centered subject"
+    },
+    {
+      "groupId": "social",
+      "fieldId": "format",
+      "label": "尺寸适配",
+      "value": "圆形裁剪兼容",
+      "modelTag": "circular crop safe, centered subject"
+    },
+    {
+      "groupId": "social",
+      "fieldId": "usage",
+      "label": "特殊需求",
+      "value": "无水印",
+      "modelTag": "clean image, no watermark"
+    },
+    {
+      "groupId": "social",
+      "fieldId": "usage",
+      "label": "特殊需求",
+      "value": "高清无噪点",
+      "modelTag": "high resolution, clean, low noise"
+    },
+    {
+      "groupId": "social",
+      "fieldId": "usage",
+      "label": "特殊需求",
+      "value": "不撞款",
+      "modelTag": "original character design"
+    },
+    {
+      "groupId": "social",
+      "fieldId": "usage",
+      "label": "特殊需求",
+      "value": "小众设计",
+      "modelTag": "distinctive niche design"
+    },
+    {
+      "groupId": "social",
+      "fieldId": "usage",
+      "label": "特殊需求",
+      "value": "可商用（用于社团海报）",
+      "modelTag": "poster-ready composition"
+    },
+    {
+      "groupId": "technical",
+      "fieldId": "sampling",
+      "label": "采样参数",
+      "value": "20 步采样",
+      "modelTag": ""
+    },
+    {
+      "groupId": "technical",
+      "fieldId": "sampling",
+      "label": "采样参数",
+      "value": "CFG = 5（黄金组合）",
+      "modelTag": ""
+    },
+    {
+      "groupId": "technical",
+      "fieldId": "sampling",
+      "label": "采样参数",
+      "value": "sharp focus（锐化）",
+      "modelTag": "sharp focus"
+    },
+    {
+      "groupId": "technical",
+      "fieldId": "negativeConstraint",
+      "label": "避坑约束",
+      "value": "五官正常",
+      "modelTag": "symmetrical face, correct facial features"
+    },
+    {
+      "groupId": "technical",
+      "fieldId": "negativeConstraint",
+      "label": "避坑约束",
+      "value": "无穿模",
+      "modelTag": "coherent clothing, no clipping"
+    },
+    {
+      "groupId": "technical",
+      "fieldId": "negativeConstraint",
+      "label": "避坑约束",
+      "value": "发丝不模糊",
+      "modelTag": "detailed hair, sharp hair strands"
+    },
+    {
+      "groupId": "technical",
+      "fieldId": "negativeConstraint",
+      "label": "避坑约束",
+      "value": "比例协调",
+      "modelTag": "correct proportions"
+    }
+  ],
+  "fieldInventory": [
+    {
+      "groupId": "style",
+      "fieldId": "baseStyle",
+      "label": "基础画风",
+      "optionCount": 10
+    },
+    {
+      "groupId": "style",
+      "fieldId": "animeReference",
+      "label": "动漫 IP 衍生",
+      "optionCount": 5
+    },
+    {
+      "groupId": "style",
+      "fieldId": "texture",
+      "label": "细节质感",
+      "optionCount": 7
+    },
+    {
+      "groupId": "character",
+      "fieldId": "hairstyle",
+      "label": "发型（外貌特征）",
+      "optionCount": 9
+    },
+    {
+      "groupId": "character",
+      "fieldId": "facialFeatures",
+      "label": "五官（外貌特征）",
+      "optionCount": 7
+    },
+    {
+      "groupId": "character",
+      "fieldId": "faceDetails",
+      "label": "面部细节",
+      "optionCount": 8
+    },
+    {
+      "groupId": "character",
+      "fieldId": "campusIdentity",
+      "label": "校园身份（人设）",
+      "optionCount": 7
+    },
+    {
+      "groupId": "character",
+      "fieldId": "personality",
+      "label": "二次元人设",
+      "optionCount": 8
+    },
+    {
+      "groupId": "character",
+      "fieldId": "specialSetting",
+      "label": "特殊设定",
+      "optionCount": 3
+    },
+    {
+      "groupId": "wardrobe",
+      "fieldId": "outfit",
+      "label": "服装风格",
+      "optionCount": 9
+    },
+    {
+      "groupId": "wardrobe",
+      "fieldId": "accessory",
+      "label": "配饰细节",
+      "optionCount": 9
+    },
+    {
+      "groupId": "pose",
+      "fieldId": "pose",
+      "label": "基础姿态",
+      "optionCount": 8
+    },
+    {
+      "groupId": "pose",
+      "fieldId": "interaction",
+      "label": "互动动作",
+      "optionCount": 8
+    },
+    {
+      "groupId": "pose",
+      "fieldId": "atmosphereAction",
+      "label": "氛围动作",
+      "optionCount": 6
+    },
+    {
+      "groupId": "scene",
+      "fieldId": "campusScene",
+      "label": "校园场景",
+      "optionCount": 6
+    },
+    {
+      "groupId": "scene",
+      "fieldId": "animeScene",
+      "label": "二次元场景",
+      "optionCount": 6
+    },
+    {
+      "groupId": "scene",
+      "fieldId": "background",
+      "label": "背景简化",
+      "optionCount": 6
+    },
+    {
+      "groupId": "mood",
+      "fieldId": "emotion",
+      "label": "情绪表达",
+      "optionCount": 7
+    },
+    {
+      "groupId": "mood",
+      "fieldId": "tone",
+      "label": "氛围基调",
+      "optionCount": 6
+    },
+    {
+      "groupId": "social",
+      "fieldId": "format",
+      "label": "尺寸适配",
+      "optionCount": 6
+    },
+    {
+      "groupId": "social",
+      "fieldId": "usage",
+      "label": "特殊需求",
+      "optionCount": 5
+    },
+    {
+      "groupId": "technical",
+      "fieldId": "sampling",
+      "label": "采样参数",
+      "optionCount": 3
+    },
+    {
+      "groupId": "technical",
+      "fieldId": "negativeConstraint",
+      "label": "避坑约束",
+      "optionCount": 4
+    }
+  ]
+}

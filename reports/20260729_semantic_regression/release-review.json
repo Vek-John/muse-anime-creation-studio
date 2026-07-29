@@ -1,0 +1,73 @@
+{
+  "reviewedAt": "2026-07-29T09:55:00+08:00",
+  "source": "release-results.json",
+  "summary": {
+    "total": 24,
+    "pass": 23,
+    "partial": 1,
+    "fail": 0,
+    "token_pruning_events": 0,
+    "max_positive_tokens": 73,
+    "max_negative_tokens": 71,
+    "token_limit": 75,
+    "average_generation_ms": 10851
+  },
+  "cases": [
+    {
+      "id": "school_idol_boy",
+      "pass": 3,
+      "partial": 0,
+      "fail": 0,
+      "notes": "All three seeds produced one clearly male school student."
+    },
+    {
+      "id": "white_background",
+      "pass": 3,
+      "partial": 0,
+      "fail": 0,
+      "notes": "All three retained a complete character on a deterministic white background."
+    },
+    {
+      "id": "mixed_couple",
+      "pass": 2,
+      "partial": 1,
+      "fail": 0,
+      "notes": "All seeds contained exactly two people. Seed 94007 remained visually androgynous, so the one-boy/one-girl condition was rated partial."
+    },
+    {
+      "id": "two_girls",
+      "pass": 3,
+      "partial": 0,
+      "fail": 0,
+      "notes": "All three contained exactly two girls with coordinated outfits."
+    },
+    {
+      "id": "full_body",
+      "pass": 3,
+      "partial": 0,
+      "fail": 0,
+      "notes": "All three retained head-to-toe framing and visible feet."
+    },
+    {
+      "id": "love_letter",
+      "pass": 3,
+      "partial": 0,
+      "fail": 0,
+      "notes": "All three retained a complete character and a visible envelope presented toward the viewer; pose strength varies by seed."
+    },
+    {
+      "id": "basketball",
+      "pass": 3,
+      "partial": 0,
+      "fail": 0,
+      "notes": "All three showed a visible basketball and an active dribbling pose."
+    },
+    {
+      "id": "circular_crop",
+      "pass": 3,
+      "partial": 0,
+      "fail": 0,
+      "notes": "All three used a conservative full-body, centered, white-space composition that remains inside a circular crop."
+    }
+  ]
+}

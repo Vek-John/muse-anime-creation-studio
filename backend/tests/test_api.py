@@ -6,8 +6,14 @@ os.environ["CORS_ORIGINS"] = "http://localhost:3000"
 
 from fastapi.testclient import TestClient
 
+from app.engine import PromptBudgetError
 from app.main import app, engine
-from app.schemas import GenerationResponse
+from app.schemas import (
+    GenerationResponse,
+    PromptDiagnostics,
+    PromptInspectionResponse,
+    PromptTokenUsage,
+)
 
 
 client = TestClient(app)
@@ -80,3 +86,70 @@ def test_dimensions_must_be_multiples_of_64():
         },
     )
     assert response.status_code == 422
+
+
+def test_prompt_inspection_contract(monkeypatch):
+    async def fake_inspect(payload):
+        return PromptInspectionResponse(
+            prompt=payload.prompt,
+            negative_prompt=payload.negative_prompt,
+            diagnostics=PromptDiagnostics(
+                token_usage=PromptTokenUsage(
+                    tokenizer_1=12,
+                    tokenizer_2=13,
+                    limit=75,
+                ),
+                negative_token_usage=PromptTokenUsage(
+                    tokenizer_1=2,
+                    tokenizer_2=2,
+                    limit=75,
+                ),
+            ),
+        )
+
+    monkeypatch.setattr(engine, "inspect_prompt", fake_inspect)
+    response = client.post(
+        "/v1/prompt/inspect",
+        headers={"Authorization": "Bearer test-secret"},
+        json={
+            "prompt": "1girl, full body",
+            "negative_prompt": "lowres",
+            "prompt_segments": [
+                {
+                    "id": "subject",
+                    "label": "主体",
+                    "text": "1girl",
+                    "slot": "subject",
+                    "priority": 0,
+                    "protected": True,
+                }
+            ],
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["diagnostics"]["token_usage"] == {
+        "tokenizer_1": 12,
+        "tokenizer_2": 13,
+        "limit": 75,
+    }
+    assert response.json()["diagnostics"]["negative_token_usage"] == {
+        "tokenizer_1": 2,
+        "tokenizer_2": 2,
+        "limit": 75,
+    }
+
+
+def test_prompt_budget_errors_are_returned_as_422(monkeypatch):
+    async def reject_prompt(_):
+        raise PromptBudgetError("protected prompt is too long")
+
+    monkeypatch.setattr(engine, "inspect_prompt", reject_prompt)
+    response = client.post(
+        "/v1/prompt/inspect",
+        headers={"Authorization": "Bearer test-secret"},
+        json={"prompt": "too long"},
+    )
+
+    assert response.status_code == 422
+    assert response.json()["detail"] == "protected prompt is too long"
