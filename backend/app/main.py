@@ -10,7 +10,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from .config import Settings
-from .engine import DiffusionEngine, PromptBudgetError
+from .engine import (
+    DiffusionEngine,
+    PromptBudgetError,
+    SubjectValidationError,
+)
 from .schemas import (
     GenerationRequest,
     GenerationResponse,
@@ -96,6 +100,20 @@ async def runtime_error_handler(request: Request, exc: RuntimeError):
 
 @app.exception_handler(PromptBudgetError)
 async def prompt_budget_error_handler(request: Request, exc: PromptBudgetError):
+    return JSONResponse(
+        status_code=422,
+        content={
+            "detail": str(exc),
+            "request_id": request.state.request_id,
+        },
+    )
+
+
+@app.exception_handler(SubjectValidationError)
+async def subject_validation_error_handler(
+    request: Request,
+    exc: SubjectValidationError,
+):
     return JSONResponse(
         status_code=422,
         content={

@@ -27,6 +27,12 @@ class Settings:
     preload_model: bool
     output_dir: str
     max_prompt_chars: int
+    subject_verifier_model: str
+    subject_validation_threshold: float
+    subject_validation_margin: float
+    subject_validation_count_threshold: float
+    human_integrity_threshold: float
+    demonslayer_lora_path: str
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -48,6 +54,29 @@ class Settings:
             preload_model=_as_bool(os.getenv("PRELOAD_MODEL"), default=True),
             output_dir=os.getenv("OUTPUT_DIR", "/app/outputs").strip(),
             max_prompt_chars=int(os.getenv("MAX_PROMPT_CHARS", "4000")),
+            subject_verifier_model=os.getenv(
+                "SUBJECT_VERIFIER_MODEL",
+                "SmilingWolf/wd-swinv2-tagger-v3",
+            ).strip(),
+            subject_validation_threshold=float(
+                os.getenv("SUBJECT_VALIDATION_THRESHOLD", "0.28")
+            ),
+            subject_validation_margin=float(
+                os.getenv("SUBJECT_VALIDATION_MARGIN", "0.08")
+            ),
+            subject_validation_count_threshold=float(
+                os.getenv("SUBJECT_VALIDATION_COUNT_THRESHOLD", "0.28")
+            ),
+            human_integrity_threshold=float(
+                os.getenv("HUMAN_INTEGRITY_THRESHOLD", "0.28")
+            ),
+            demonslayer_lora_path=os.getenv(
+                "DEMONSLAYER_LORA_PATH",
+                (
+                    "/root/autodl-tmp/muse-models/loras/demonslayer/"
+                    "Demonslayer_style_lora-.safetensors"
+                ),
+            ).strip(),
         )
 
     def validate(self) -> None:
@@ -58,3 +87,14 @@ class Settings:
             )
         if self.torch_dtype not in {"float16", "bfloat16"}:
             raise RuntimeError("TORCH_DTYPE must be float16 or bfloat16.")
+        for name, value in (
+            ("SUBJECT_VALIDATION_THRESHOLD", self.subject_validation_threshold),
+            ("SUBJECT_VALIDATION_MARGIN", self.subject_validation_margin),
+            (
+                "SUBJECT_VALIDATION_COUNT_THRESHOLD",
+                self.subject_validation_count_threshold,
+            ),
+            ("HUMAN_INTEGRITY_THRESHOLD", self.human_integrity_threshold),
+        ):
+            if not 0 <= value <= 1:
+                raise RuntimeError(f"{name} must be between 0 and 1.")

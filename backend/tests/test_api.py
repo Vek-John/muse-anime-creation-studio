@@ -75,6 +75,76 @@ def test_generate_contract(monkeypatch):
     assert response.headers["X-Request-ID"] == body["request_id"]
 
 
+def test_strict_subject_validation_request_contract(monkeypatch):
+    captured = {}
+
+    async def fake_generate(payload, request_id):
+        captured["payload"] = payload
+        return GenerationResponse(
+            request_id=request_id,
+            image_base64="aW1hZ2U=",
+            seed=124,
+            model="test/model",
+            width=payload.width,
+            height=payload.height,
+            steps=payload.steps,
+            guidance_scale=payload.guidance_scale,
+            sampler=payload.sampler,
+            duration_ms=50,
+        )
+
+    monkeypatch.setattr(engine, "generate", fake_generate)
+    response = client.post(
+        "/v1/generate",
+        headers={"Authorization": "Bearer test-secret"},
+        json={
+            "prompt": "1boy, solo, male focus",
+            "expected_subject": "male",
+            "subject_validation": "strict",
+            "max_subject_attempts": 5,
+        },
+    )
+
+    assert response.status_code == 200
+    assert captured["payload"].expected_subject == "male"
+    assert captured["payload"].subject_validation == "strict"
+    assert captured["payload"].max_subject_attempts == 5
+
+
+def test_generic_human_validation_request_contract(monkeypatch):
+    captured = {}
+
+    async def fake_generate(payload, request_id):
+        captured["payload"] = payload
+        return GenerationResponse(
+            request_id=request_id,
+            image_base64="aW1hZ2U=",
+            seed=125,
+            model="test/model",
+            width=payload.width,
+            height=payload.height,
+            steps=payload.steps,
+            guidance_scale=payload.guidance_scale,
+            sampler=payload.sampler,
+            duration_ms=50,
+        )
+
+    monkeypatch.setattr(engine, "generate", fake_generate)
+    response = client.post(
+        "/v1/generate",
+        headers={"Authorization": "Bearer test-secret"},
+        json={
+            "prompt": "solo, safe, masterpiece",
+            "expected_subject": "human",
+            "subject_validation": "strict",
+        },
+    )
+
+    assert response.status_code == 200
+    assert captured["payload"].expected_subject == "human"
+    assert captured["payload"].subject_validation == "strict"
+
+
 def test_dimensions_must_be_multiples_of_64():
     response = client.post(
         "/v1/generate",
@@ -86,6 +156,32 @@ def test_dimensions_must_be_multiples_of_64():
         },
     )
     assert response.status_code == 422
+
+
+def test_low_pixel_budget_and_low_step_requests_are_rejected():
+    low_pixels = client.post(
+        "/v1/generate",
+        headers={"Authorization": "Bearer test-secret"},
+        json={
+            "prompt": "1boy, solo",
+            "width": 640,
+            "height": 640,
+            "steps": 28,
+        },
+    )
+    assert low_pixels.status_code == 422
+
+    low_steps = client.post(
+        "/v1/generate",
+        headers={"Authorization": "Bearer test-secret"},
+        json={
+            "prompt": "1boy, solo",
+            "width": 1024,
+            "height": 1024,
+            "steps": 24,
+        },
+    )
+    assert low_steps.status_code == 422
 
 
 def test_prompt_inspection_contract(monkeypatch):

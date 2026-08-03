@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 SamplerName = Literal[
@@ -12,6 +12,16 @@ SamplerName = Literal[
     "euler",
 ]
 BackgroundMode = Literal["none", "white"]
+StyleAdapterName = Literal["demonslayer"]
+ExpectedSubject = Literal[
+    "human",
+    "female",
+    "male",
+    "female_pair",
+    "male_pair",
+    "mixed",
+]
+SubjectValidationMode = Literal["off", "strict"]
 
 
 class PromptSegment(BaseModel):
@@ -39,6 +49,7 @@ class PromptDiagnostics(BaseModel):
 class PromptInspectionRequest(BaseModel):
     prompt: str = Field(min_length=1, max_length=4000)
     negative_prompt: str = Field(default="", max_length=4000)
+    expected_subject: ExpectedSubject | None = None
     prompt_segments: list[PromptSegment] = Field(
         default_factory=list,
         max_length=256,
@@ -54,18 +65,23 @@ class PromptInspectionResponse(BaseModel):
 class GenerationRequest(BaseModel):
     prompt: str = Field(min_length=1, max_length=4000)
     negative_prompt: str = Field(default="", max_length=4000)
+    expected_subject: ExpectedSubject | None = None
+    subject_validation: SubjectValidationMode = "off"
+    max_subject_attempts: int = Field(default=4, ge=1, le=8)
     prompt_segments: list[PromptSegment] = Field(
         default_factory=list,
         max_length=256,
     )
-    width: int = Field(default=1024, ge=512, le=1536)
-    height: int = Field(default=1024, ge=512, le=1536)
-    steps: int = Field(default=28, ge=10, le=60)
+    width: int = Field(default=1024, ge=640, le=1536)
+    height: int = Field(default=1024, ge=640, le=1536)
+    steps: int = Field(default=28, ge=25, le=60)
     guidance_scale: float = Field(default=5.0, ge=1.0, le=15.0)
     seed: int = Field(default=-1, ge=-1, le=4_294_967_295)
     sampler: SamplerName = "euler_a"
     clip_skip: int = Field(default=2, ge=1, le=4)
     background_mode: BackgroundMode = "none"
+    style_adapter: StyleAdapterName | None = None
+    style_adapter_scale: float = Field(default=0.65, ge=0.0, le=1.0)
 
     @field_validator("width", "height")
     @classmethod
@@ -73,6 +89,33 @@ class GenerationRequest(BaseModel):
         if value % 64 != 0:
             raise ValueError("width and height must be multiples of 64")
         return value
+
+    @model_validator(mode="after")
+    def must_use_model_safe_pixel_budget(self):
+        if self.width * self.height < 900_000:
+            raise ValueError(
+                "Animagine requests need at least 900000 pixels; "
+                "use a recommended SDXL resolution such as 1024x1024."
+            )
+        return self
+
+
+class SubjectValidationAttempt(BaseModel):
+    seed: int
+    passed: bool
+    target_score: float = Field(ge=0, le=1)
+    conflicting_score: float = Field(ge=0, le=1)
+    count_score: float = Field(ge=0, le=1)
+    integrity_conflict_score: float = Field(ge=0, le=1)
+    integrity_conflicts: list[str] = Field(default_factory=list)
+    scores: dict[str, float]
+    reason: str
+
+
+class SubjectValidationReport(BaseModel):
+    status: Literal["passed", "skipped"]
+    expected_subject: ExpectedSubject | None = None
+    attempts: list[SubjectValidationAttempt] = Field(default_factory=list)
 
 
 class GenerationResponse(BaseModel):
@@ -90,6 +133,9 @@ class GenerationResponse(BaseModel):
     prompt_used: str = ""
     prompt_diagnostics: PromptDiagnostics | None = None
     background_mode: BackgroundMode = "none"
+    style_adapter: StyleAdapterName | None = None
+    style_adapter_scale: float | None = None
+    subject_validation: SubjectValidationReport | None = None
 
 
 class HealthResponse(BaseModel):

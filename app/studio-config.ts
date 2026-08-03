@@ -13,6 +13,43 @@ export type ParameterGroup = {
   fields: ParameterField[];
 };
 
+export type StyleAdapterId = "demonslayer";
+
+export type StyleAdapterConfig = {
+  id: StyleAdapterId;
+  label: string;
+  defaultScale: number;
+  minScale: number;
+  maxScale: number;
+  recommended: string;
+  negativeAdditions: string[];
+};
+
+const DEMONSLAYER_STYLE_ADAPTER: StyleAdapterConfig = {
+  id: "demonslayer",
+  label: "鬼灭之刃画风 LoRA",
+  defaultScale: 0.65,
+  minScale: 0.3,
+  maxScale: 1,
+  recommended: "Euler Ancestral · 30 步 · CFG 6",
+  negativeAdditions: [
+    "official character",
+    "character cosplay",
+  ],
+};
+
+const STYLE_ADAPTERS_BY_SELECTION: Record<string, StyleAdapterConfig> = {
+  鬼灭之刃画风: DEMONSLAYER_STYLE_ADAPTER,
+  // Compatibility with selections saved before the label was clarified.
+  鬼灭之刃质感: DEMONSLAYER_STYLE_ADAPTER,
+};
+
+export function styleAdapterForSelection(
+  selection: string | undefined,
+): StyleAdapterConfig | null {
+  return selection ? STYLE_ADAPTERS_BY_SELECTION[selection] ?? null : null;
+}
+
 export const PARAMETER_GROUPS: ParameterGroup[] = [
   {
     id: "style",
@@ -42,7 +79,7 @@ export const PARAMETER_GROUPS: ParameterGroup[] = [
         options: [
           "原神风",
           "火影忍者画风",
-          "鬼灭之刃质感",
+          "鬼灭之刃画风",
           "海贼王手绘风",
           "罗小黑战记治愈风",
         ],
@@ -344,22 +381,8 @@ export const PARAMETER_GROUPS: ParameterGroup[] = [
   },
 ];
 
-export const QUALITY_GUARD_OPTIONS = [
-  "五官正常",
-  "无穿模",
-  "发丝不模糊",
-  "比例协调",
-] as const;
+// Compatibility exports used by reports and tests. Visible controls start
+// empty; the compiler adds only its small, disposable human-integrity baseline.
+export const DEFAULT_QUALITY_GUARDS = [] as const;
 
-export const DEFAULT_QUALITY_GUARD = QUALITY_GUARD_OPTIONS[0];
-
-export const DEFAULT_SELECTIONS: Record<string, string> = {
-  baseStyle: "日系萌系",
-  texture: "4K 高清",
-  hairstyle: "短发狼尾",
-  personality: "元气少女",
-  pose: "半身像",
-  campusScene: "樱花树下",
-  emotion: "温柔治愈",
-  format: "小红书头像",
-};
+export const DEFAULT_SELECTIONS: Record<string, string> = {};

@@ -14,10 +14,9 @@ import {
   RuntimePanel,
 } from "./runtime-panel";
 import {
-  DEFAULT_QUALITY_GUARD,
   DEFAULT_SELECTIONS,
   PARAMETER_GROUPS,
-  QUALITY_GUARD_OPTIONS,
+  styleAdapterForSelection,
 } from "./studio-config";
 
 const FIELD_LABELS = Object.fromEntries(
@@ -32,6 +31,9 @@ const SIZE_PRESETS = [
   { label: "横版 4:3", width: 1152, height: 896 },
   { label: "海报 2:3", width: 832, height: 1216 },
 ];
+const MIN_SAFE_PIXELS = 900_000;
+const MIN_SAFE_STEPS = 25;
+const MODEL_PROMPT_TOKEN_LIMIT = 75;
 
 const SAMPLERS = [
   { value: "dpmpp_2m_karras", label: "DPM++ 2M Karras" },
@@ -83,6 +85,19 @@ type GenerationResult = {
   prompt_used?: string;
   prompt_diagnostics?: PromptDiagnostics;
   background_mode?: "none" | "white";
+  style_adapter?: string | null;
+  style_adapter_scale?: number | null;
+  subject_validation?: {
+    status: "passed" | "skipped";
+    expected_subject?: string;
+    attempts: Array<{
+      seed: number;
+      passed: boolean;
+      reason: string;
+      integrity_conflict_score?: number;
+      integrity_conflicts?: string[];
+    }>;
+  };
 };
 
 function normalizeApiUrl(value: string) {
@@ -100,9 +115,7 @@ function connectionLabel(status: ConnectionStatus) {
 export default function Home() {
   const [selections, setSelections] =
     useState<Record<string, string>>(DEFAULT_SELECTIONS);
-  const [description, setDescription] = useState(
-    "1girl, solo, looking back at viewer, gentle smile, soft backlight, clean composition",
-  );
+  const [description, setDescription] = useState("");
   const [negativePrompt, setNegativePrompt] = useState(DEFAULT_NEGATIVE_PROMPT);
   const [status, setStatus] = useState<GenerationStatus>("idle");
   const [copied, setCopied] = useState(false);
@@ -123,7 +136,7 @@ export default function Home() {
   const [seed, setSeed] = useState(-1);
   const [sampler, setSampler] = useState("euler_a");
   const [clipSkip, setClipSkip] = useState(2);
-  const [qualityGuard, setQualityGuard] = useState(DEFAULT_QUALITY_GUARD);
+  const [styleAdapterScale, setStyleAdapterScale] = useState(0.65);
   const [selectionNotice, setSelectionNotice] = useState("");
   const [inspection, setInspection] =
     useState<PromptInspectionState | null>(null);
@@ -141,14 +154,41 @@ export default function Home() {
       compilePrompt({
         selections,
         description,
-        qualityGuard,
       }),
-    [description, qualityGuard, selections],
+    [description, selections],
+  );
+
+  const activeStyleAdapter = useMemo(() => {
+    const adapter = styleAdapterForSelection(selections.animeReference);
+    if (
+      !adapter ||
+      compiled.inputOverrideFields.includes("animeReference")
+    ) {
+      return null;
+    }
+    return adapter;
+  }, [compiled.inputOverrideFields, selections.animeReference]);
+
+  const automaticNegativeAdditions = useMemo(
+    () => [
+      ...compiled.negativeAdditions,
+      ...(activeStyleAdapter?.negativeAdditions ?? []),
+    ],
+    [activeStyleAdapter, compiled.negativeAdditions],
   );
 
   const effectiveNegativePrompt = useMemo(
-    () => mergeNegativePrompt(negativePrompt, compiled.negativeAdditions),
-    [compiled.negativeAdditions, negativePrompt],
+    () =>
+      mergeNegativePrompt(
+        negativePrompt,
+        automaticNegativeAdditions,
+        compiled.negativeRemovals,
+      ),
+    [
+      automaticNegativeAdditions,
+      compiled.negativeRemovals,
+      negativePrompt,
+    ],
   );
 
   const normalizedGatewayUrl = normalizeApiUrl(gatewayUrl);
@@ -160,7 +200,7 @@ export default function Home() {
       ? inspection
       : null;
   const visibleInspectionStatus: InspectionStatus =
-    connection !== "connected"
+    !compiled.prompt || connection !== "connected"
       ? "idle"
       : currentInspection
         ? "ready"
@@ -181,8 +221,7 @@ export default function Home() {
         effectiveDiagnostics.negative_token_usage.tokenizer_2,
       )
     : null;
-  const backgroundMode =
-    selections.background === "纯白背景" ? "white" : "none";
+  const backgroundMode = compiled.backgroundMode;
 
   const payload = useMemo(
     () => ({
@@ -197,17 +236,25 @@ export default function Home() {
       sampler,
       clip_skip: clipSkip,
       background_mode: backgroundMode,
+      expected_subject: compiled.expectedSubject ?? undefined,
+      subject_validation: compiled.expectedSubject ? "strict" : "off",
+      max_subject_attempts: 4,
+      style_adapter: activeStyleAdapter?.id ?? null,
+      style_adapter_scale: styleAdapterScale,
     }),
     [
+      activeStyleAdapter,
       backgroundMode,
       clipSkip,
       compiled.prompt,
       compiled.segments,
+      compiled.expectedSubject,
       effectiveNegativePrompt,
       guidanceScale,
       height,
       sampler,
       seed,
+      styleAdapterScale,
       steps,
       width,
     ],
@@ -232,6 +279,7 @@ export default function Home() {
               prompt: compiled.prompt,
               prompt_segments: compiled.segments,
               negative_prompt: effectiveNegativePrompt,
+              expected_subject: compiled.expectedSubject ?? undefined,
             }),
             signal: controller.signal,
           },
@@ -264,17 +312,30 @@ export default function Home() {
   }, [
     compiled.prompt,
     compiled.segments,
+    compiled.expectedSubject,
     connection,
     effectiveNegativePrompt,
     gatewayUrl,
   ]);
 
   function updateSelection(fieldId: string, value: string) {
+    const styleAdapter =
+      fieldId === "animeReference"
+        ? styleAdapterForSelection(value)
+        : null;
     setSelections((current) => {
       const resolved = resolveSelectionChange(current, fieldId, value);
-      setSelectionNotice(resolved.notices.join(" "));
+      const adapterNotice = styleAdapter
+        ? `已启用 ${styleAdapter.label}，默认强度 ${styleAdapter.defaultScale}。`
+        : "";
+      setSelectionNotice(
+        [...resolved.notices, adapterNotice].filter(Boolean).join(" "),
+      );
       return resolved.selections;
     });
+    if (styleAdapter) {
+      setStyleAdapterScale(styleAdapter.defaultScale);
+    }
     if (fieldId === "format" && value) {
       setWidth(1024);
       setHeight(1024);
@@ -296,7 +357,6 @@ export default function Home() {
     setSelections(DEFAULT_SELECTIONS);
     setDescription("");
     setNegativePrompt(DEFAULT_NEGATIVE_PROMPT);
-    setQualityGuard(DEFAULT_QUALITY_GUARD);
     setSelectionNotice("");
     setInspection(null);
     setWidth(1024);
@@ -306,6 +366,7 @@ export default function Home() {
     setSeed(-1);
     setSampler("euler_a");
     setClipSkip(2);
+    setStyleAdapterScale(0.65);
     setStatus("idle");
     setResult(null);
     setErrorMessage("");
@@ -330,6 +391,20 @@ export default function Home() {
     if (!baseUrl) {
       setStatus("error");
       setErrorMessage("请先启动本机 Runtime Gateway");
+      return;
+    }
+    if (width * height < MIN_SAFE_PIXELS) {
+      setStatus("error");
+      setErrorMessage(
+        "当前画布像素过低，Animagine 容易退化成抽象图；请选择上方推荐尺寸。",
+      );
+      return;
+    }
+    if (steps < MIN_SAFE_STEPS) {
+      setStatus("error");
+      setErrorMessage(
+        `采样步数不能低于 ${MIN_SAFE_STEPS}，推荐使用 28 步。`,
+      );
       return;
     }
 
@@ -577,8 +652,8 @@ export default function Home() {
               {status === "generating" && (
                 <div className="preview-message" role="status">
                   <span className="loader" />
-                  <strong>GPU 正在绘制</strong>
-                  <span>首次生成可能需要等待模型加载</span>
+                  <strong>GPU 正在绘制并校验主体</strong>
+                  <span>性别或人数不符会自动换种子重试</span>
                 </div>
               )}
 
@@ -601,6 +676,17 @@ export default function Home() {
               {result && status === "ready" && (
                 <div className="result-meta">
                   <span>SEED {result.seed}</span>
+                  {result.style_adapter && (
+                    <span>
+                      LORA {result.style_adapter_scale?.toFixed(2)}
+                    </span>
+                  )}
+                  {Boolean(result.subject_validation?.attempts.length) && (
+                    <span>
+                      主体校验{" "}
+                      {result.subject_validation?.attempts.length} 次
+                    </span>
+                  )}
                   <span>{(result.duration_ms / 1000).toFixed(1)}S</span>
                 </div>
               )}
@@ -650,7 +736,7 @@ export default function Home() {
 
             <div className="prompt-box">
               <div className="prompt-heading">
-                <label htmlFor="prompt-input">模型提示词</label>
+                <label htmlFor="prompt-input">高优先级模型提示词</label>
                 <span
                   className={`token-meter token-${visibleInspectionStatus}`}
                   data-testid="token-meter"
@@ -660,17 +746,19 @@ export default function Home() {
                           effectiveDiagnostics.negative_token_usage
                             ? `；负向分词器 1：${effectiveDiagnostics.negative_token_usage.tokenizer_1}；负向分词器 2：${effectiveDiagnostics.negative_token_usage.tokenizer_2}`
                             : ""
-                        }`
+                        }；正负 token 分别计算，不相加`
                       : inspectionError
                   }
                 >
                   {visibleInspectionStatus === "checking"
                     ? "TOKEN 计算中"
+                    : !compiled.prompt
+                      ? `0 / ${MODEL_PROMPT_TOKEN_LIMIT} TOKENS`
                     : visibleInspectionStatus === "ready" &&
                         tokenCount !== null &&
                         effectiveDiagnostics
                       ? negativeTokenCount !== null
-                        ? `正 ${tokenCount} · 负 ${negativeTokenCount} / ${effectiveDiagnostics.token_usage.limit}`
+                        ? `正 ${tokenCount}/${effectiveDiagnostics.token_usage.limit} · 负 ${negativeTokenCount}/${effectiveDiagnostics.token_usage.limit}`
                         : `${tokenCount} / ${effectiveDiagnostics.token_usage.limit} TOKENS`
                       : visibleInspectionStatus === "error"
                         ? "TOKEN 检查失败"
@@ -685,8 +773,11 @@ export default function Home() {
                   setDescription(event.target.value);
                   setStatus("idle");
                 }}
-                placeholder="1girl, silver hair, looking at viewer, rainy night…"
+                placeholder="1man, adult male, school uniform, full body…"
               />
+              <p className="prompt-priority-note">
+                输入框优先于全部下拉选项；冲突项会自动忽略并显示提示。
+              </p>
 
               <details className="advanced-settings" open>
                 <summary>高级生成参数</summary>
@@ -711,7 +802,7 @@ export default function Home() {
                     <span>宽度</span>
                     <input
                       type="number"
-                      min={512}
+                      min={640}
                       max={1536}
                       step={64}
                       value={width}
@@ -727,7 +818,7 @@ export default function Home() {
                     <span>高度</span>
                     <input
                       type="number"
-                      min={512}
+                      min={640}
                       max={1536}
                       step={64}
                       value={height}
@@ -743,7 +834,7 @@ export default function Home() {
                     <span>采样步数</span>
                     <input
                       type="number"
-                      min={10}
+                      min={MIN_SAFE_STEPS}
                       max={60}
                       value={steps}
                       onChange={(event) => setSteps(Number(event.target.value))}
@@ -799,23 +890,26 @@ export default function Home() {
                       ))}
                     </select>
                   </label>
-                  <label className="wide-control">
-                    <span>质量约束</span>
-                    <select
-                      value={qualityGuard}
-                      onChange={(event) => {
-                        setQualityGuard(event.target.value);
-                        setStatus("idle");
-                      }}
-                    >
-                      <option value="">暂不设置</option>
-                      {QUALITY_GUARD_OPTIONS.map((option) => (
-                        <option key={option} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                  {activeStyleAdapter && (
+                    <label className="wide-control lora-control">
+                      <span>{activeStyleAdapter.label} 强度</span>
+                      <input
+                        type="number"
+                        min={activeStyleAdapter.minScale}
+                        max={activeStyleAdapter.maxScale}
+                        step={0.05}
+                        value={styleAdapterScale}
+                        onChange={(event) => {
+                          setStyleAdapterScale(Number(event.target.value));
+                          setStatus("idle");
+                        }}
+                      />
+                      <small>
+                        实测默认 {activeStyleAdapter.defaultScale}；推荐参数：
+                        {activeStyleAdapter.recommended}
+                      </small>
+                    </label>
+                  )}
                 </div>
               </details>
 
@@ -829,10 +923,10 @@ export default function Home() {
                   }}
                   aria-label="负面提示词"
                 />
-                {compiled.negativeAdditions.length > 0 && (
+                {automaticNegativeAdditions.length > 0 && (
                   <p className="negative-additions">
                     已按当前选择自动补充：
-                    {compiled.negativeAdditions.join(", ")}
+                    {automaticNegativeAdditions.join(", ")}
                   </p>
                 )}
               </details>

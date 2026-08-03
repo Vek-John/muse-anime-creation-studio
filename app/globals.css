@@ -971,6 +971,13 @@ a {
   color: rgba(242, 240, 234, 0.28);
 }
 
+.prompt-priority-note {
+  color: rgba(242, 240, 234, 0.52);
+  font-size: 9px;
+  line-height: 1.45;
+  margin: -8px 0 14px;
+}
+
 .advanced-settings,
 .negative-settings {
   border-bottom: 1px solid rgba(242, 240, 234, 0.15);
@@ -1055,6 +1062,12 @@ a {
 
 .advanced-grid .wide-control {
   grid-column: 1 / -1;
+}
+
+.advanced-grid .lora-control small {
+  color: rgba(242, 240, 234, 0.48);
+  font-size: 8px;
+  line-height: 1.5;
 }
 
 .negative-settings textarea {

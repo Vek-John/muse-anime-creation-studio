@@ -1,13 +1,14 @@
 export const RATING_TAG = "safe";
 
-export const QUALITY_SUFFIX =
-  "masterpiece, high score, great score, absurdres";
+// Keep the automatic quality hint intentionally small. It is disposable and
+// is dropped before any user-authored content when the token budget gets tight.
+export const QUALITY_SUFFIX = "masterpiece";
 
 // Kept as a compatibility export for local audit scripts.
 export const QUALITY_PREFIX = QUALITY_SUFFIX;
 
 export const DEFAULT_NEGATIVE_PROMPT =
-  "lowres, bad anatomy, bad hands, text, error, missing finger, extra digits, fewer digits, cropped, worst quality, low quality, low score, bad score, average score, signature, watermark, username, blurry";
+  "lowres, bad anatomy, bad hands, text, extra digits, cropped, worst quality, low quality, watermark, blurry";
 
 const PROMPT_TAGS: Record<string, string> = {
   日系萌系: "anime style",
@@ -22,7 +23,9 @@ const PROMPT_TAGS: Record<string, string> = {
   线稿简约: "clean lineart, minimalist illustration",
   原神风: "fantasy game illustration, ornate anime costume",
   火影忍者画风: "ninja anime aesthetic, cel shading",
-  鬼灭之刃质感: "taisho era fantasy, dramatic anime lighting",
+  鬼灭之刃画风: "demonslayer style, original character",
+  // Compatibility with selections saved before the LoRA integration.
+  鬼灭之刃质感: "demonslayer style, original character",
   海贼王手绘风: "adventure manga aesthetic, expressive linework",
   罗小黑战记治愈风: "soft chinese animation aesthetic, cozy",
   "4K 高清": "high resolution",
@@ -58,7 +61,7 @@ const PROMPT_TAGS: Record<string, string> = {
   方框眼镜: "square glasses",
   "JK 制服女生": "1girl, japanese school uniform",
   校草风男生:
-    "1boy, solo, male focus, masculine face, handsome male student, school blazer",
+    "1boy, solo, male focus, masculine face, handsome male student",
   "社团达人（动漫社）": "anime club member",
   "社团达人（汉服社）": "hanfu club member",
   学霸: "honor student, book",

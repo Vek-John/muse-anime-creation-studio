@@ -259,6 +259,7 @@ async function main() {
       prompt: compiled.prompt,
       prompt_segments: compiled.segments,
       negative_prompt: effectiveNegativePrompt,
+      expected_subject: compiled.subjectKind,
     });
     const caseResult = {
       ...item,
@@ -295,8 +296,10 @@ async function main() {
         prompt_segments: compiled.segments,
         negative_prompt: effectiveNegativePrompt,
         ...SETTINGS,
-        background_mode:
-          item.selections.background === "纯白背景" ? "white" : "none",
+        background_mode: compiled.backgroundMode,
+        expected_subject: compiled.subjectKind,
+        subject_validation: "strict",
+        max_subject_attempts: 4,
         seed,
       });
       const fileName = `${String(caseIndex + 1).padStart(2, "0")}_${item.id}_seed-${body.seed}.png`;

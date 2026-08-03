@@ -38,7 +38,13 @@ test("server-renders the anime prompt studio", async () => {
   assert.match(html, /本地 GPU/);
   assert.match(html, /云端 GPU/);
   assert.match(html, /高级生成参数/);
-  assert.match(html, /质量约束/);
+  assert.match(html, /连接 GPU 后计算 TOKENS/);
+  assert.match(html, /solo, safe, masterpiece/);
+  assert.doesNotMatch(
+    html,
+    /1girl, solo, looking back at viewer, gentle smile/,
+  );
+  assert.doesNotMatch(html, /质量约束/);
   assert.doesNotMatch(html, /技术优化类/);
   assert.match(html, /查看服务器请求载荷/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/i);

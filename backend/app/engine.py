@@ -19,7 +19,19 @@ from .schemas import (
     PromptInspectionResponse,
     PromptSegment,
     PromptTokenUsage,
+    SubjectValidationAttempt,
+    SubjectValidationReport,
 )
+from .subject_verifier import AnimeSubjectVerifier
+
+STYLE_ADAPTER_TRIGGERS = {
+    "demonslayer": "demonslayer style",
+}
+AUTOMATIC_PROMPT_SEGMENT_IDS = {
+    "default-human",
+    "rating",
+    "quality-suffix",
+}
 
 
 @dataclass
@@ -34,6 +46,10 @@ class PromptBudgetError(Exception):
     """Raised when protected prompt content cannot fit the model context."""
 
 
+class SubjectValidationError(Exception):
+    """Raised when every generated candidate violates the subject contract."""
+
+
 class DiffusionEngine:
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
@@ -41,6 +57,15 @@ class DiffusionEngine:
         self._pipe = None
         self._load_lock = Lock()
         self._generation_lock = asyncio.Lock()
+        self._loaded_style_adapters: set[str] = set()
+        self._subject_verifier = AnimeSubjectVerifier(
+            model_id=settings.subject_verifier_model,
+            hf_token=settings.hf_token,
+            threshold=settings.subject_validation_threshold,
+            margin=settings.subject_validation_margin,
+            count_threshold=settings.subject_validation_count_threshold,
+            integrity_threshold=settings.human_integrity_threshold,
+        )
 
     def _load_sync(self) -> None:
         if self._pipe is not None:
@@ -167,6 +192,134 @@ class DiffusionEngine:
         )
 
     @staticmethod
+    def _contains_prompt_tag(text: str, expected: str) -> bool:
+        expected_tag = " ".join(expected.lower().split())
+        return any(
+            " ".join(item.lower().split()) == expected_tag
+            for item in text.replace("，", ",").split(",")
+        )
+
+    def _generation_inspection_request(
+        self,
+        request: GenerationRequest,
+    ) -> PromptInspectionRequest:
+        prompt = request.prompt
+        segments = list(request.prompt_segments)
+        if request.style_adapter:
+            trigger = STYLE_ADAPTER_TRIGGERS[request.style_adapter]
+            if segments:
+                trigger_found = False
+                protected_segments: list[PromptSegment] = []
+                for segment in segments:
+                    if self._contains_prompt_tag(segment.text, trigger):
+                        trigger_found = True
+                        segment = segment.model_copy(
+                            update={"priority": 0, "protected": True}
+                        )
+                    protected_segments.append(segment)
+                if not trigger_found:
+                    protected_segments.append(
+                        PromptSegment(
+                            id=f"style-adapter:{request.style_adapter}",
+                            label=f"风格 LoRA · {request.style_adapter}",
+                            text=trigger,
+                            slot="style",
+                            priority=0,
+                            protected=True,
+                        )
+                    )
+                segments = protected_segments
+            elif not self._contains_prompt_tag(prompt, trigger):
+                prompt = f"{prompt.rstrip(', ')}, {trigger}"
+
+        return PromptInspectionRequest(
+            prompt=prompt,
+            negative_prompt=request.negative_prompt,
+            expected_subject=request.expected_subject,
+            prompt_segments=segments,
+        )
+
+    def _style_adapter_path(self, adapter_name: str) -> Path:
+        if adapter_name == "demonslayer":
+            return Path(self.settings.demonslayer_lora_path).expanduser()
+        raise RuntimeError(f"不支持的风格 LoRA：{adapter_name}")
+
+    def _activate_style_adapter(
+        self,
+        adapter_name: str | None,
+        adapter_scale: float,
+    ) -> None:
+        if adapter_name is None:
+            if self._loaded_style_adapters:
+                self._pipe.disable_lora()
+            return
+
+        if adapter_name not in self._loaded_style_adapters:
+            adapter_path = self._style_adapter_path(adapter_name)
+            if not adapter_path.is_file():
+                raise RuntimeError(
+                    f"风格 LoRA 尚未安装：{adapter_path}。"
+                    "请重新运行 autodl/setup.sh，或配置对应 LoRA 路径。"
+                )
+            self._pipe.load_lora_weights(
+                str(adapter_path.parent),
+                weight_name=adapter_path.name,
+                adapter_name=adapter_name,
+            )
+            self._loaded_style_adapters.add(adapter_name)
+
+        self._pipe.set_adapters(
+            adapter_name,
+            adapter_weights=adapter_scale,
+        )
+        self._pipe.enable_lora()
+
+    @staticmethod
+    def _validate_expected_subject(
+        prompt: str,
+        expected_subject: str | None,
+    ) -> None:
+        if expected_subject is None:
+            return
+        if expected_subject == "human":
+            return
+
+        tags = [
+            item.strip().lower()
+            for item in prompt.replace("，", ",").split(",")
+            if item.strip()
+        ]
+        prefixes = {
+            "male": ["1boy"],
+            "female": ["1girl"],
+            "male_pair": ["2boys"],
+            "female_pair": ["2girls"],
+            "mixed": ["1boy", "1girl"],
+        }
+        expected_prefix = prefixes[expected_subject]
+        if tags[: len(expected_prefix)] != expected_prefix:
+            rendered = ", ".join(expected_prefix)
+            actual = ", ".join(tags[: len(expected_prefix)]) or "空"
+            raise PromptBudgetError(
+                "主体约束检查失败：期望提示词以 "
+                f"“{rendered}”开头，实际为“{actual}”。"
+            )
+
+        forbidden = {
+            "male": {"1girl", "2girls"},
+            "female": {"1boy", "2boys"},
+            "male_pair": {"1girl", "2girls", "1boy"},
+            "female_pair": {"1boy", "2boys", "1girl"},
+            "mixed": {"2boys", "2girls"},
+        }[expected_subject]
+        conflicts = sorted(forbidden.intersection(tags))
+        if conflicts:
+            raise PromptBudgetError(
+                "主体约束检查失败：提示词仍包含冲突主体 "
+                f"“{', '.join(conflicts)}”。"
+            )
+
+    @staticmethod
     def _whiten_edge_background(image):
         """Turn a mostly uniform edge-connected background white.
 
@@ -262,18 +415,24 @@ class DiffusionEngine:
             ]
             if not candidates:
                 raise PromptBudgetError(
-                    "核心主体、构图与动作超过模型的 "
+                    "输入框与核心主体、构图或动作超过模型的 "
                     f"{limit} token 上限，请精简自定义描述或减少核心标签。"
                 )
 
             drop_index, dropped = max(
                 candidates,
-                key=lambda item: (item[1].priority, item[0]),
+                key=lambda item: (
+                    item[1].id in AUTOMATIC_PROMPT_SEGMENT_IDS,
+                    item[1].priority,
+                    item[0],
+                ),
             )
             omitted.append(dropped)
             del active_segments[drop_index]
             prompt = self._join_segments(active_segments)
             tokenizer_1_count, tokenizer_2_count = usage(prompt)
+
+        self._validate_expected_subject(prompt, request.expected_subject)
 
         negative_1, negative_2 = usage(request.negative_prompt)
         if max(negative_1, negative_2) > limit:
@@ -318,35 +477,95 @@ class DiffusionEngine:
     def _generate_sync(
         self, request: GenerationRequest, request_id: str
     ) -> GenerationResponse:
+        strict_subject = request.subject_validation == "strict"
+        if strict_subject and request.expected_subject is None:
+            raise PromptBudgetError(
+                "严格主体校验需要 expected_subject。"
+            )
+
         import torch
 
         inspection = self._inspect_sync(
-            PromptInspectionRequest(
-                prompt=request.prompt,
-                negative_prompt=request.negative_prompt,
-                prompt_segments=request.prompt_segments,
-            )
+            self._generation_inspection_request(request)
         )
         self._configure_scheduler(request.sampler)
+        self._activate_style_adapter(
+            request.style_adapter,
+            request.style_adapter_scale,
+        )
 
-        seed = request.seed if request.seed >= 0 else secrets.randbelow(2**32)
-        generator = torch.Generator(device="cuda").manual_seed(seed)
+        base_seed = (
+            request.seed
+            if request.seed >= 0
+            else secrets.randbelow(2**32)
+        )
+        attempt_limit = request.max_subject_attempts if strict_subject else 1
+        validation_attempts: list[SubjectValidationAttempt] = []
+        accepted_image = None
+        accepted_seed = base_seed
         started = time.perf_counter()
 
-        with torch.inference_mode():
-            result = self._pipe(
-                prompt=inspection.prompt,
-                negative_prompt=inspection.negative_prompt or None,
-                width=request.width,
-                height=request.height,
-                num_inference_steps=request.steps,
-                guidance_scale=request.guidance_scale,
-                generator=generator,
-                clip_skip=request.clip_skip,
-                num_images_per_prompt=1,
+        try:
+            for attempt_index in range(attempt_limit):
+                candidate_seed = (base_seed + attempt_index) % (2**32)
+                generator = torch.Generator(device="cuda").manual_seed(
+                    candidate_seed
+                )
+                with torch.inference_mode():
+                    result = self._pipe(
+                        prompt=inspection.prompt,
+                        negative_prompt=inspection.negative_prompt or None,
+                        width=request.width,
+                        height=request.height,
+                        num_inference_steps=request.steps,
+                        guidance_scale=request.guidance_scale,
+                        generator=generator,
+                        clip_skip=request.clip_skip,
+                        num_images_per_prompt=1,
+                    )
+
+                candidate_image = result.images[0]
+                if strict_subject:
+                    verdict = self._subject_verifier.verify(
+                        candidate_image,
+                        request.expected_subject,
+                    )
+                    validation_attempts.append(
+                        SubjectValidationAttempt(
+                            seed=candidate_seed,
+                            passed=verdict.passed,
+                            target_score=verdict.target_score,
+                            conflicting_score=verdict.conflicting_score,
+                            count_score=verdict.count_score,
+                            integrity_conflict_score=(
+                                verdict.integrity_conflict_score
+                            ),
+                            integrity_conflicts=verdict.integrity_conflicts,
+                            scores=verdict.scores,
+                            reason=verdict.reason,
+                        )
+                    )
+                    if not verdict.passed:
+                        continue
+
+                accepted_image = candidate_image
+                accepted_seed = candidate_seed
+                break
+        finally:
+            if request.style_adapter:
+                self._pipe.disable_lora()
+
+        if accepted_image is None:
+            summary = "；".join(
+                f"seed {attempt.seed}: {attempt.reason}"
+                for attempt in validation_attempts
+            )
+            raise SubjectValidationError(
+                "严格主体校验未通过，已拒绝返回可能错误的图片。"
+                f"共尝试 {attempt_limit} 次。{summary}"
             )
 
-        image = result.images[0]
+        image = accepted_image
         if request.background_mode == "white":
             image = self._whiten_edge_background(image)
 
@@ -358,7 +577,7 @@ class DiffusionEngine:
         return GenerationResponse(
             request_id=request_id,
             image_base64=encoded,
-            seed=seed,
+            seed=accepted_seed,
             model=self.settings.model_id,
             width=request.width,
             height=request.height,
@@ -369,6 +588,17 @@ class DiffusionEngine:
             prompt_used=inspection.prompt,
             prompt_diagnostics=inspection.diagnostics,
             background_mode=request.background_mode,
+            style_adapter=request.style_adapter,
+            style_adapter_scale=(
+                request.style_adapter_scale
+                if request.style_adapter
+                else None
+            ),
+            subject_validation=SubjectValidationReport(
+                status="passed" if strict_subject else "skipped",
+                expected_subject=request.expected_subject,
+                attempts=validation_attempts,
+            ),
         )
 
     async def generate(
