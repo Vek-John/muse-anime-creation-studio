@@ -4,6 +4,7 @@ os.environ["API_KEY"] = "test-secret"
 os.environ["PRELOAD_MODEL"] = "false"
 os.environ["CORS_ORIGINS"] = "http://localhost:3000"
 
+import pytest
 from fastapi.testclient import TestClient
 
 from app.engine import PromptBudgetError
@@ -17,6 +18,14 @@ from app.schemas import (
 
 
 client = TestClient(app)
+
+STYLE_ADAPTER_CASES = [
+    ("demonslayer", "demonslayer style", 0.65),
+    ("naruto", "in naruto-style", 0.65),
+    ("genshin", "genshin-style character", 0.60),
+    ("onepiece", "one_piece_style", 0.60),
+    ("luoxiaohei", "muse_lxh_style", 0.60),
+]
 
 
 def test_health_is_public_and_does_not_load_the_model():
@@ -143,6 +152,122 @@ def test_generic_human_validation_request_contract(monkeypatch):
     assert response.status_code == 200
     assert captured["payload"].expected_subject == "human"
     assert captured["payload"].subject_validation == "strict"
+
+
+@pytest.mark.parametrize(
+    ("adapter_name", "trigger", "default_scale"),
+    STYLE_ADAPTER_CASES,
+)
+def test_style_adapter_request_contract(
+    monkeypatch,
+    adapter_name,
+    trigger,
+    default_scale,
+):
+    captured = {}
+
+    async def fake_generate(payload, request_id):
+        captured["payload"] = payload
+        return GenerationResponse(
+            request_id=request_id,
+            image_base64="aW1hZ2U=",
+            seed=126,
+            model="test/model",
+            width=payload.width,
+            height=payload.height,
+            steps=payload.steps,
+            guidance_scale=payload.guidance_scale,
+            sampler=payload.sampler,
+            duration_ms=50,
+            style_adapter=payload.style_adapter,
+            style_adapter_scale=default_scale,
+        )
+
+    monkeypatch.setattr(engine, "generate", fake_generate)
+    response = client.post(
+        "/v1/generate",
+        headers={"Authorization": "Bearer test-secret"},
+        json={
+            "prompt": f"1girl, solo, {trigger}",
+            "style_adapter": adapter_name,
+        },
+    )
+
+    assert response.status_code == 200
+    assert captured["payload"].style_adapter == adapter_name
+    assert captured["payload"].style_adapter_scale is None
+    assert response.json()["style_adapter"] == adapter_name
+    assert response.json()["style_adapter_scale"] == default_scale
+
+
+def test_unknown_style_adapter_is_rejected():
+    response = client.post(
+        "/v1/generate",
+        headers={"Authorization": "Bearer test-secret"},
+        json={
+            "prompt": "1girl, solo",
+            "style_adapter": "unknown-style",
+        },
+    )
+
+    assert response.status_code == 422
+
+
+@pytest.mark.parametrize("explicit_scale", [0.0, 1.0])
+def test_explicit_style_adapter_scale_boundaries_are_preserved(
+    monkeypatch,
+    explicit_scale,
+):
+    captured = {}
+
+    async def fake_generate(payload, request_id):
+        captured["payload"] = payload
+        return GenerationResponse(
+            request_id=request_id,
+            image_base64="aW1hZ2U=",
+            seed=127,
+            model="test/model",
+            width=payload.width,
+            height=payload.height,
+            steps=payload.steps,
+            guidance_scale=payload.guidance_scale,
+            sampler=payload.sampler,
+            duration_ms=50,
+            style_adapter=payload.style_adapter,
+            style_adapter_scale=payload.style_adapter_scale,
+        )
+
+    monkeypatch.setattr(engine, "generate", fake_generate)
+    response = client.post(
+        "/v1/generate",
+        headers={"Authorization": "Bearer test-secret"},
+        json={
+            "prompt": "1girl, solo, in naruto-style",
+            "style_adapter": "naruto",
+            "style_adapter_scale": explicit_scale,
+        },
+    )
+
+    assert response.status_code == 200
+    assert captured["payload"].style_adapter_scale == explicit_scale
+    assert response.json()["style_adapter_scale"] == explicit_scale
+
+
+@pytest.mark.parametrize("invalid_scale", [-0.01, 1.01])
+def test_style_adapter_scale_outside_supported_range_is_rejected(
+    invalid_scale,
+):
+    response = client.post(
+        "/v1/generate",
+        headers={"Authorization": "Bearer test-secret"},
+        json={
+            "prompt": "1girl, solo, in naruto-style",
+            "style_adapter": "naruto",
+            "style_adapter_scale": invalid_scale,
+        },
+    )
+
+    assert response.status_code == 422
 
 
 def test_dimensions_must_be_multiples_of_64():

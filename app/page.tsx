@@ -34,6 +34,7 @@ const SIZE_PRESETS = [
 const MIN_SAFE_PIXELS = 900_000;
 const MIN_SAFE_STEPS = 25;
 const MODEL_PROMPT_TOKEN_LIMIT = 75;
+const DEFAULT_STYLE_ADAPTER_SCALE = 0.65;
 
 const SAMPLERS = [
   { value: "dpmpp_2m_karras", label: "DPM++ 2M Karras" },
@@ -136,7 +137,9 @@ export default function Home() {
   const [seed, setSeed] = useState(-1);
   const [sampler, setSampler] = useState("euler_a");
   const [clipSkip, setClipSkip] = useState(2);
-  const [styleAdapterScale, setStyleAdapterScale] = useState(0.65);
+  const [styleAdapterScale, setStyleAdapterScale] = useState(
+    DEFAULT_STYLE_ADAPTER_SCALE,
+  );
   const [selectionNotice, setSelectionNotice] = useState("");
   const [inspection, setInspection] =
     useState<PromptInspectionState | null>(null);
@@ -240,7 +243,7 @@ export default function Home() {
       subject_validation: compiled.expectedSubject ? "strict" : "off",
       max_subject_attempts: 4,
       style_adapter: activeStyleAdapter?.id ?? null,
-      style_adapter_scale: styleAdapterScale,
+      style_adapter_scale: activeStyleAdapter ? styleAdapterScale : null,
     }),
     [
       activeStyleAdapter,
@@ -366,7 +369,7 @@ export default function Home() {
     setSeed(-1);
     setSampler("euler_a");
     setClipSkip(2);
-    setStyleAdapterScale(0.65);
+    setStyleAdapterScale(DEFAULT_STYLE_ADAPTER_SCALE);
     setStatus("idle");
     setResult(null);
     setErrorMessage("");
@@ -905,8 +908,12 @@ export default function Home() {
                         }}
                       />
                       <small>
-                        实测默认 {activeStyleAdapter.defaultScale}；推荐参数：
+                        默认强度 {activeStyleAdapter.defaultScale}；推荐参数：
                         {activeStyleAdapter.recommended}
+                        {activeStyleAdapter.compatibilityNote && (
+                          <> · {activeStyleAdapter.compatibilityNote}</>
+                        )}
+                        {" · 仅限内部研究，对外商用前需单独完成 IP 权利审查。"}
                       </small>
                     </label>
                   )}

@@ -46,6 +46,48 @@ async function loadPromptModules() {
 
 const { compiler, config } = await loadPromptModules();
 
+const STYLE_ADAPTER_CASES = [
+  {
+    id: "demonslayer",
+    selection: "鬼灭之刃画风",
+    trigger: "demonslayer style",
+    defaultScale: 0.65,
+  },
+  {
+    id: "naruto",
+    selection: "火影忍者画风",
+    trigger: "in naruto-style",
+    defaultScale: 0.65,
+  },
+  {
+    id: "genshin",
+    selection: "原神风",
+    trigger: "genshin-style character",
+    defaultScale: 0.6,
+  },
+  {
+    id: "onepiece",
+    selection: "海贼王手绘风",
+    trigger: "one_piece_style",
+    defaultScale: 0.6,
+  },
+  {
+    id: "luoxiaohei",
+    selection: "罗小黑战记治愈风",
+    trigger: "muse_lxh_style",
+    defaultScale: 0.6,
+  },
+];
+
+function hasExactPromptTag(text, expected) {
+  const normalizedExpected = expected.trim().toLowerCase().replaceAll(/\s+/g, " ");
+  return text
+    .replaceAll("，", ",")
+    .split(",")
+    .map((tag) => tag.trim().toLowerCase().replaceAll(/\s+/g, " "))
+    .includes(normalizedExpected);
+}
+
 test("prompt order is deterministic and protects framing before accessories", () => {
   const selectionsA = {
     accessory: "书包",
@@ -140,6 +182,16 @@ test("high-risk composition tags add inference-side exclusion constraints", () =
   );
   assert.ok(fullBody.negativeAdditions.includes("close-up"));
   assert.ok(fullBody.negativeAdditions.includes("out of frame"));
+  for (const tag of [
+    "character sheet",
+    "reference sheet",
+    "multiple views",
+    "inset",
+    "split screen",
+    "collage",
+  ]) {
+    assert.ok(fullBody.negativeAdditions.includes(tag));
+  }
 
   const circularCrop = compiler.compilePrompt({
     selections: { format: "圆形裁剪兼容" },
@@ -589,31 +641,56 @@ test("automatic hints stay compact and are always disposable", () => {
   );
 });
 
-test("Demon Slayer selection compiles a protected LoRA trigger", () => {
-  const result = compiler.compilePrompt({
-    selections: { animeReference: "鬼灭之刃画风" },
-    description: "1boy, solo, original character",
-  });
-  const segment = result.segments.find(
-    (item) => item.id === "selection:animeReference",
+test("every IP selection compiles its registered protected LoRA trigger", () => {
+  assert.deepEqual(
+    config.STYLE_ADAPTER_IDS,
+    STYLE_ADAPTER_CASES.map((item) => item.id),
   );
-  const adapter = config.styleAdapterForSelection("鬼灭之刃画风");
+  assert.deepEqual(
+    Object.keys(config.STYLE_ADAPTER_REGISTRY),
+    STYLE_ADAPTER_CASES.map((item) => item.id),
+  );
 
-  assert.equal(segment.text, "demonslayer style");
-  assert.match(result.prompt, /original character/);
-  assert.equal(segment.priority, 0);
-  assert.equal(segment.protected, true);
-  assert.equal(adapter.id, "demonslayer");
-  assert.equal(adapter.defaultScale, 0.65);
-  assert.ok(adapter.negativeAdditions.includes("official character"));
+  for (const expected of STYLE_ADAPTER_CASES) {
+    const result = compiler.compilePrompt({
+      selections: { animeReference: expected.selection },
+      description: "1girl, solo",
+    });
+    const segment = result.segments.find(
+      (item) => item.id === "selection:animeReference",
+    );
+    const adapter = config.styleAdapterForSelection(expected.selection);
+
+    assert.ok(segment, `${expected.id} should compile a style segment`);
+    assert.ok(
+      hasExactPromptTag(segment.text, expected.trigger),
+      `${expected.id} segment should contain ${expected.trigger}`,
+    );
+    assert.ok(
+      hasExactPromptTag(result.prompt, expected.trigger),
+      `${expected.id} prompt should contain ${expected.trigger}`,
+    );
+    assert.equal(segment.priority, 0);
+    assert.equal(segment.protected, true);
+    assert.equal(adapter.id, expected.id);
+    assert.equal(adapter.trigger, expected.trigger);
+    assert.equal(adapter.defaultScale, expected.defaultScale);
+    assert.equal(config.STYLE_ADAPTER_REGISTRY[expected.id], adapter);
+    assert.ok(adapter.minScale <= adapter.defaultScale);
+    assert.ok(adapter.defaultScale <= adapter.maxScale);
+  }
+
+  assert.equal(config.styleAdapterForSelection("未知画风"), null);
 });
 
-test("explicit input style disables the selected IP adapter route", () => {
-  const result = compiler.compilePrompt({
-    selections: { animeReference: "鬼灭之刃画风" },
-    description: "1girl, watercolor style",
-  });
+test("explicit input style disables every selected IP adapter route", () => {
+  for (const expected of STYLE_ADAPTER_CASES) {
+    const result = compiler.compilePrompt({
+      selections: { animeReference: expected.selection },
+      description: "1girl, watercolor style",
+    });
 
-  assert.ok(result.inputOverrideFields.includes("animeReference"));
-  assert.doesNotMatch(result.prompt, /demonslayer style/);
+    assert.ok(result.inputOverrideFields.includes("animeReference"));
+    assert.equal(hasExactPromptTag(result.prompt, expected.trigger), false);
+  }
 });

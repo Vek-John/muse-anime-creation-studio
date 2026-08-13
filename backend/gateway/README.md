@@ -38,3 +38,6 @@ AutoDL 实例重启后，重新在网页连接即可。Gateway 默认会执行
 
 本地模式要求当前 Python 环境已经安装与显卡匹配的 PyTorch/CUDA。模型目录
 应包含 `model_index.json`；单文件模型支持 `.safetensors` 和 `.ckpt`。
+公开风格 LoRA 在本地第一次选中时会自动按固定版本下载并校验，默认保存到
+`~/.cache/muse/loras`。如需放到更大的磁盘，在启动 Gateway 前设置
+`MUSE_LORA_HOME=/你的/LoRA/目录`。罗小黑为项目自训权重，不会自动下载。

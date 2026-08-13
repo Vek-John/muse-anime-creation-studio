@@ -15,6 +15,21 @@ def _as_list(value: str | None, default: str) -> list[str]:
     return [item.strip().rstrip("/") for item in raw.split(",") if item.strip()]
 
 
+def _default_lora_path(adapter_name: str, filename: str) -> str:
+    configured_root = os.getenv("MUSE_LORA_HOME", "").strip()
+    if configured_root:
+        root = configured_root
+    elif os.getenv("AUTODL_CONTAINER_UUID"):
+        root = "/root/autodl-tmp/muse-models/loras"
+    else:
+        cache_home = os.getenv("XDG_CACHE_HOME", "").strip()
+        if cache_home:
+            root = os.path.join(cache_home, "muse", "loras")
+        else:
+            root = os.path.join(os.path.expanduser("~"), ".cache", "muse", "loras")
+    return os.path.join(root, adapter_name, filename)
+
+
 @dataclass(frozen=True)
 class Settings:
     api_key: str
@@ -33,6 +48,10 @@ class Settings:
     subject_validation_count_threshold: float
     human_integrity_threshold: float
     demonslayer_lora_path: str
+    naruto_lora_path: str
+    genshin_lora_path: str
+    onepiece_lora_path: str
+    luoxiaohei_lora_path: str
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -72,9 +91,37 @@ class Settings:
             ),
             demonslayer_lora_path=os.getenv(
                 "DEMONSLAYER_LORA_PATH",
-                (
-                    "/root/autodl-tmp/muse-models/loras/demonslayer/"
-                    "Demonslayer_style_lora-.safetensors"
+                _default_lora_path(
+                    "demonslayer",
+                    "Demonslayer_style_lora-.safetensors",
+                ),
+            ).strip(),
+            naruto_lora_path=os.getenv(
+                "NARUTO_LORA_PATH",
+                _default_lora_path(
+                    "naruto",
+                    "pytorch_lora_weights.safetensors",
+                ),
+            ).strip(),
+            genshin_lora_path=os.getenv(
+                "GENSHIN_LORA_PATH",
+                _default_lora_path(
+                    "genshin",
+                    "pytorch_lora_weights.safetensors",
+                ),
+            ).strip(),
+            onepiece_lora_path=os.getenv(
+                "ONEPIECE_LORA_PATH",
+                _default_lora_path(
+                    "onepiece",
+                    "one_piece_style_ilxl.safetensors",
+                ),
+            ).strip(),
+            luoxiaohei_lora_path=os.getenv(
+                "LUOXIAOHEI_LORA_PATH",
+                _default_lora_path(
+                    "luoxiaohei",
+                    "muse_lxh_style_v1.safetensors",
                 ),
             ).strip(),
         )

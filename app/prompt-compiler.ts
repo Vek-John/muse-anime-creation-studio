@@ -1390,7 +1390,16 @@ export function compilePrompt({
       !customIntent.overrideFields.has("pose") &&
       selections.format !== "圆形裁剪兼容")
   ) {
-    negativeAdditions.push("close-up", "out of frame");
+    negativeAdditions.push(
+      "close-up",
+      "out of frame",
+      "character sheet",
+      "reference sheet",
+      "multiple views",
+      "inset",
+      "split screen",
+      "collage",
+    );
   }
   if (
     selections.format === "圆形裁剪兼容" &&

@@ -13,36 +13,131 @@ export type ParameterGroup = {
   fields: ParameterField[];
 };
 
-export type StyleAdapterId = "demonslayer";
+export const STYLE_ADAPTER_IDS = [
+  "demonslayer",
+  "naruto",
+  "genshin",
+  "onepiece",
+  "luoxiaohei",
+] as const;
+
+export type StyleAdapterId = (typeof STYLE_ADAPTER_IDS)[number];
 
 export type StyleAdapterConfig = {
   id: StyleAdapterId;
+  selections: readonly string[];
   label: string;
+  trigger: string;
+  promptAdditions: readonly string[];
   defaultScale: number;
   minScale: number;
   maxScale: number;
   recommended: string;
-  negativeAdditions: string[];
+  negativeAdditions: readonly string[];
+  compatibilityNote?: string;
 };
 
-const DEMONSLAYER_STYLE_ADAPTER: StyleAdapterConfig = {
-  id: "demonslayer",
-  label: "鬼灭之刃画风 LoRA",
-  defaultScale: 0.65,
-  minScale: 0.3,
-  maxScale: 1,
-  recommended: "Euler Ancestral · 30 步 · CFG 6",
-  negativeAdditions: [
-    "official character",
-    "character cosplay",
-  ],
-};
+export const STYLE_ADAPTER_REGISTRY = {
+  demonslayer: {
+    id: "demonslayer",
+    selections: [
+      "鬼灭之刃画风",
+      // Compatibility with selections saved before the label was clarified.
+      "鬼灭之刃质感",
+    ],
+    label: "鬼灭之刃画风 LoRA",
+    trigger: "demonslayer style",
+    promptAdditions: ["original character"],
+    defaultScale: 0.65,
+    minScale: 0.3,
+    maxScale: 1,
+    recommended: "Euler Ancestral · 30 步 · CFG 6",
+    negativeAdditions: [
+      "official character",
+      "character cosplay",
+    ],
+  },
+  naruto: {
+    id: "naruto",
+    selections: ["火影忍者画风"],
+    label: "火影忍者画风 LoRA",
+    trigger: "in naruto-style",
+    promptAdditions: [
+      "original character",
+      "ninja anime aesthetic",
+      "cel shading",
+    ],
+    defaultScale: 0.65,
+    minScale: 0.3,
+    maxScale: 1,
+    recommended: "Euler Ancestral · 28 步 · CFG 5",
+    negativeAdditions: [
+      "official character",
+      "character cosplay",
+      "franchise logo",
+    ],
+  },
+  genshin: {
+    id: "genshin",
+    selections: ["原神风"],
+    label: "原神人物风格 LoRA",
+    trigger: "genshin-style character",
+    promptAdditions: [
+      "original character",
+      "fantasy game illustration",
+      "ornate anime costume",
+    ],
+    defaultScale: 0.6,
+    minScale: 0.3,
+    maxScale: 1,
+    recommended: "Euler Ancestral · 28 步 · CFG 5",
+    negativeAdditions: [
+      "official character",
+      "character cosplay",
+      "game logo",
+    ],
+    compatibilityNote: "触发词根据发布者训练 caption 推断，需以实图回归为准。",
+  },
+  onepiece: {
+    id: "onepiece",
+    selections: ["海贼王手绘风"],
+    label: "海贼王画风 LoRA（实验）",
+    trigger: "one_piece_style",
+    promptAdditions: [
+      "original character",
+      "adventure manga aesthetic",
+      "expressive linework",
+    ],
+    defaultScale: 0.6,
+    minScale: 0.3,
+    maxScale: 1,
+    recommended: "Euler Ancestral · 28 步 · CFG 5",
+    negativeAdditions: [
+      "official character",
+      "character cosplay",
+      "franchise logo",
+    ],
+    compatibilityNote: "跨 Illustrious → Animagine XL 适配，当前为实验模式。",
+  },
+  luoxiaohei: {
+    id: "luoxiaohei",
+    selections: ["罗小黑战记治愈风"],
+    label: "罗小黑风格 LoRA",
+    trigger: "muse_lxh_style",
+    promptAdditions: [],
+    defaultScale: 0.6,
+    minScale: 0.3,
+    maxScale: 1,
+    recommended: "Euler Ancestral · 28 步 · CFG 5",
+    negativeAdditions: [],
+  },
+} satisfies Record<StyleAdapterId, StyleAdapterConfig>;
 
-const STYLE_ADAPTERS_BY_SELECTION: Record<string, StyleAdapterConfig> = {
-  鬼灭之刃画风: DEMONSLAYER_STYLE_ADAPTER,
-  // Compatibility with selections saved before the label was clarified.
-  鬼灭之刃质感: DEMONSLAYER_STYLE_ADAPTER,
-};
+const STYLE_ADAPTERS_BY_SELECTION = Object.fromEntries(
+  Object.values(STYLE_ADAPTER_REGISTRY).flatMap((adapter) =>
+    adapter.selections.map((selection) => [selection, adapter]),
+  ),
+) as Record<string, StyleAdapterConfig>;
 
 export function styleAdapterForSelection(
   selection: string | undefined,

@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import asyncio
 import base64
+import hashlib
 import io
+import os
 import secrets
 import time
 from collections import Counter
@@ -23,10 +25,12 @@ from .schemas import (
     SubjectValidationReport,
 )
 from .subject_verifier import AnimeSubjectVerifier
+from .style_adapters import (
+    style_adapter_path,
+    style_adapter_scale,
+    style_adapter_spec,
+)
 
-STYLE_ADAPTER_TRIGGERS = {
-    "demonslayer": "demonslayer style",
-}
 AUTOMATIC_PROMPT_SEGMENT_IDS = {
     "default-human",
     "rating",
@@ -206,7 +210,7 @@ class DiffusionEngine:
         prompt = request.prompt
         segments = list(request.prompt_segments)
         if request.style_adapter:
-            trigger = STYLE_ADAPTER_TRIGGERS[request.style_adapter]
+            trigger = style_adapter_spec(request.style_adapter).trigger
             if segments:
                 trigger_found = False
                 protected_segments: list[PromptSegment] = []
@@ -240,27 +244,97 @@ class DiffusionEngine:
         )
 
     def _style_adapter_path(self, adapter_name: str) -> Path:
-        if adapter_name == "demonslayer":
-            return Path(self.settings.demonslayer_lora_path).expanduser()
-        raise RuntimeError(f"不支持的风格 LoRA：{adapter_name}")
+        return style_adapter_path(self.settings, adapter_name)
+
+    @staticmethod
+    def _file_sha256(path: Path) -> str:
+        digest = hashlib.sha256()
+        with path.open("rb") as handle:
+            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                digest.update(chunk)
+        return digest.hexdigest()
+
+    def _ensure_style_adapter_file(self, adapter_name: str) -> Path:
+        adapter_path = self._style_adapter_path(adapter_name)
+        spec = style_adapter_spec(adapter_name)
+
+        def is_valid() -> bool:
+            if not adapter_path.is_file():
+                return False
+            if spec.size is not None and adapter_path.stat().st_size != spec.size:
+                if spec.repo_id is None:
+                    return True
+                return False
+            if spec.sha256 is not None and spec.repo_id is not None:
+                return self._file_sha256(adapter_path) == spec.sha256
+            return True
+
+        if is_valid():
+            return adapter_path
+        if not all((spec.repo_id, spec.filename, spec.revision, spec.sha256, spec.size)):
+            raise RuntimeError(
+                f"风格 LoRA 尚未安装：{adapter_path}。"
+                "该适配器没有公开的自动下载来源，请先配置对应 LoRA 路径。"
+            )
+
+        try:
+            from huggingface_hub import hf_hub_download
+
+            adapter_path.parent.mkdir(parents=True, exist_ok=True)
+            downloaded_path = Path(
+                hf_hub_download(
+                    repo_id=spec.repo_id,
+                    filename=spec.filename,
+                    revision=spec.revision,
+                    cache_dir=os.getenv("HF_HOME") or None,
+                    token=self.settings.hf_token,
+                )
+            )
+            temporary_path = adapter_path.with_suffix(
+                adapter_path.suffix + ".download"
+            )
+            temporary_path.unlink(missing_ok=True)
+            try:
+                os.link(downloaded_path, temporary_path)
+            except OSError:
+                import shutil
+
+                shutil.copyfile(downloaded_path, temporary_path)
+            if (
+                temporary_path.stat().st_size != spec.size
+                or self._file_sha256(temporary_path) != spec.sha256
+            ):
+                raise RuntimeError(
+                    f"下载的 {adapter_name} LoRA 未通过固定版本校验。"
+                )
+            temporary_path.replace(adapter_path)
+        except Exception as exc:
+            adapter_path.with_suffix(adapter_path.suffix + ".download").unlink(
+                missing_ok=True
+            )
+            if isinstance(exc, RuntimeError):
+                raise
+            raise RuntimeError(
+                f"风格 LoRA 自动下载失败：{adapter_name}。"
+                "请检查网络/HF_ENDPOINT，或手动配置对应 LoRA 路径。"
+            ) from exc
+
+        return adapter_path
 
     def _activate_style_adapter(
         self,
         adapter_name: str | None,
-        adapter_scale: float,
-    ) -> None:
+        adapter_scale: float | None,
+    ) -> float | None:
         if adapter_name is None:
             if self._loaded_style_adapters:
                 self._pipe.disable_lora()
-            return
+            return None
+
+        resolved_scale = style_adapter_scale(adapter_name, adapter_scale)
 
         if adapter_name not in self._loaded_style_adapters:
-            adapter_path = self._style_adapter_path(adapter_name)
-            if not adapter_path.is_file():
-                raise RuntimeError(
-                    f"风格 LoRA 尚未安装：{adapter_path}。"
-                    "请重新运行 autodl/setup.sh，或配置对应 LoRA 路径。"
-                )
+            adapter_path = self._ensure_style_adapter_file(adapter_name)
             self._pipe.load_lora_weights(
                 str(adapter_path.parent),
                 weight_name=adapter_path.name,
@@ -268,11 +342,19 @@ class DiffusionEngine:
             )
             self._loaded_style_adapters.add(adapter_name)
 
-        self._pipe.set_adapters(
-            adapter_name,
-            adapter_weights=adapter_scale,
-        )
-        self._pipe.enable_lora()
+        try:
+            self._pipe.set_adapters(
+                adapter_name,
+                adapter_weights=resolved_scale,
+            )
+            self._pipe.enable_lora()
+        except Exception:
+            # A failed adapter switch must never leak a partially enabled
+            # LoRA into the next request. Loaded weights remain cached and can
+            # be retried after the transient failure is resolved.
+            self._pipe.disable_lora()
+            raise
+        return resolved_scale
 
     @staticmethod
     def _validate_expected_subject(
@@ -485,27 +567,30 @@ class DiffusionEngine:
 
         import torch
 
-        inspection = self._inspect_sync(
-            self._generation_inspection_request(request)
-        )
-        self._configure_scheduler(request.sampler)
-        self._activate_style_adapter(
-            request.style_adapter,
-            request.style_adapter_scale,
-        )
-
-        base_seed = (
-            request.seed
-            if request.seed >= 0
-            else secrets.randbelow(2**32)
-        )
-        attempt_limit = request.max_subject_attempts if strict_subject else 1
-        validation_attempts: list[SubjectValidationAttempt] = []
-        accepted_image = None
-        accepted_seed = base_seed
-        started = time.perf_counter()
-
+        active_style_adapter_scale = None
         try:
+            inspection = self._inspect_sync(
+                self._generation_inspection_request(request)
+            )
+            self._configure_scheduler(request.sampler)
+            active_style_adapter_scale = self._activate_style_adapter(
+                request.style_adapter,
+                request.style_adapter_scale,
+            )
+
+            base_seed = (
+                request.seed
+                if request.seed >= 0
+                else secrets.randbelow(2**32)
+            )
+            attempt_limit = (
+                request.max_subject_attempts if strict_subject else 1
+            )
+            validation_attempts: list[SubjectValidationAttempt] = []
+            accepted_image = None
+            accepted_seed = base_seed
+            started = time.perf_counter()
+
             for attempt_index in range(attempt_limit):
                 candidate_seed = (base_seed + attempt_index) % (2**32)
                 generator = torch.Generator(device="cuda").manual_seed(
@@ -589,11 +674,7 @@ class DiffusionEngine:
             prompt_diagnostics=inspection.diagnostics,
             background_mode=request.background_mode,
             style_adapter=request.style_adapter,
-            style_adapter_scale=(
-                request.style_adapter_scale
-                if request.style_adapter
-                else None
-            ),
+            style_adapter_scale=active_style_adapter_scale,
             subject_validation=SubjectValidationReport(
                 status="passed" if strict_subject else "skipped",
                 expected_subject=request.expected_subject,

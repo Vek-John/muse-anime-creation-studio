@@ -1,3 +1,5 @@
+import { styleAdapterForSelection } from "./studio-config";
+
 export const RATING_TAG = "safe";
 
 // Keep the automatic quality hint intentionally small. It is disposable and
@@ -23,11 +25,7 @@ const PROMPT_TAGS: Record<string, string> = {
   线稿简约: "clean lineart, minimalist illustration",
   原神风: "fantasy game illustration, ornate anime costume",
   火影忍者画风: "ninja anime aesthetic, cel shading",
-  鬼灭之刃画风: "demonslayer style, original character",
-  // Compatibility with selections saved before the LoRA integration.
-  鬼灭之刃质感: "demonslayer style, original character",
   海贼王手绘风: "adventure manga aesthetic, expressive linework",
-  罗小黑战记治愈风: "soft chinese animation aesthetic, cozy",
   "4K 高清": "high resolution",
   发丝清晰: "detailed individual hair strands",
   阴影柔和: "soft shadows",
@@ -177,5 +175,9 @@ const PROMPT_TAGS: Record<string, string> = {
 };
 
 export function toModelPrompt(value: string): string {
+  const adapter = styleAdapterForSelection(value);
+  if (adapter) {
+    return [adapter.trigger, ...adapter.promptAdditions].join(", ");
+  }
   return PROMPT_TAGS[value] ?? value;
 }

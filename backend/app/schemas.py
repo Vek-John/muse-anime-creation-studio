@@ -12,7 +12,13 @@ SamplerName = Literal[
     "euler",
 ]
 BackgroundMode = Literal["none", "white"]
-StyleAdapterName = Literal["demonslayer"]
+StyleAdapterName = Literal[
+    "demonslayer",
+    "naruto",
+    "genshin",
+    "onepiece",
+    "luoxiaohei",
+]
 ExpectedSubject = Literal[
     "human",
     "female",
@@ -81,7 +87,11 @@ class GenerationRequest(BaseModel):
     clip_skip: int = Field(default=2, ge=1, le=4)
     background_mode: BackgroundMode = "none"
     style_adapter: StyleAdapterName | None = None
-    style_adapter_scale: float = Field(default=0.65, ge=0.0, le=1.0)
+    style_adapter_scale: float | None = Field(
+        default=None,
+        ge=0.0,
+        le=1.0,
+    )
 
     @field_validator("width", "height")
     @classmethod
